@@ -21,7 +21,7 @@ use near_contract_standards::non_fungible_token::metadata::{
 use near_contract_standards::non_fungible_token::{Token, TokenId};
 use near_contract_standards::non_fungible_token::NonFungibleToken;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::LazyOption;
+use near_sdk::collections::{LazyOption, UnorderedMap};
 use near_sdk::json_types::ValidAccountId;
 use near_sdk::{
     env, near_bindgen, AccountId, BorshStorageKey, PanicOnDefault, Promise, PromiseOrValue,
@@ -35,12 +35,19 @@ pub struct Contract {
     tokens: NonFungibleToken,
     metadata: LazyOption<NFTContractMetadata>,
     pub token_minted: u16,
+    pub token_minted_type: UnorderedMap<String, u16>,
+    current_index: u8,
 }
 
 const DATA_IMAGE_SVG_NEAR_ICON: &str = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 288 288'%3E%3Cg id='l' data-name='l'%3E%3Cpath d='M187.58,79.81l-30.1,44.69a3.2,3.2,0,0,0,4.75,4.2L191.86,103a1.2,1.2,0,0,1,2,.91v80.46a1.2,1.2,0,0,1-2.12.77L102.18,77.93A15.35,15.35,0,0,0,90.47,72.5H87.34A15.34,15.34,0,0,0,72,87.84V201.16A15.34,15.34,0,0,0,87.34,216.5h0a15.35,15.35,0,0,0,13.08-7.31l30.1-44.69a3.2,3.2,0,0,0-4.75-4.2L96.14,186a1.2,1.2,0,0,1-2-.91V104.61a1.2,1.2,0,0,1,2.12-.77l89.55,107.23a15.35,15.35,0,0,0,11.71,5.43h3.13A15.34,15.34,0,0,0,216,201.16V87.84A15.34,15.34,0,0,0,200.66,72.5h0A15.35,15.35,0,0,0,187.58,79.81Z'/%3E%3C/g%3E%3C/svg%3E";
 const MAX_NFT_MINT: u16 = 500;
-const NFT_IMAGES: [&str; 5] = ["QmTv7FYGpkPVZWTM9263T4jy9cyzMHbJ8KH5XcGc3Dsdiu", "QmNaYdFNHc1kTtejJCBmHxk4dc2m4EjpArNGhw3qDMtoVh", "Qmer8SwUkPVHw7f9tQPwHJdhXNhV5BPscLzZcycmdcCows", "QmRUWkezhE2iMmZoSDFQf3MxgoHDyg6FGFQQYR4tTyHhhh", "QmSMm3D3dmztcKXdG5EX1JnwdVU4rysiKm5S9U5Fqfva21"];
-
+const NFT_IMAGES: [&str; 5] = [
+        "https://cloudflare-ipfs.com/ipfs/QmTv7FYGpkPVZWTM9263T4jy9cyzMHbJ8KH5XcGc3Dsdiu", 
+        "https://cloudflare-ipfs.com/ipfs/QmNaYdFNHc1kTtejJCBmHxk4dc2m4EjpArNGhw3qDMtoVh", 
+        "https://cloudflare-ipfs.com/ipfs/Qmer8SwUkPVHw7f9tQPwHJdhXNhV5BPscLzZcycmdcCows", 
+        "https://cloudflare-ipfs.com/ipfs/QmRUWkezhE2iMmZoSDFQf3MxgoHDyg6FGFQQYR4tTyHhhh", 
+        "https://cloudflare-ipfs.com/ipfs/QmSMm3D3dmztcKXdG5EX1JnwdVU4rysiKm5S9U5Fqfva21"];
+const MINT_PRICE: u128 = 5_000_000_000_000_000_000_000_000;
 
 #[derive(BorshSerialize, BorshStorageKey)]
 enum StorageKey {
@@ -49,6 +56,7 @@ enum StorageKey {
     TokenMetadata,
     Enumeration,
     Approval,
+    TokenCount,
 }
 
 #[near_bindgen]
@@ -75,6 +83,10 @@ impl Contract {
     pub fn new(owner_id: ValidAccountId, metadata: NFTContractMetadata) -> Self {
         assert!(!env::state_exists(), "Already initialized");
         metadata.assert_valid();
+        let mut token_type: UnorderedMap<String, u16> = UnorderedMap::new(StorageKey::TokenCount);
+        for i in 0..4 {
+            token_type.insert(&NFT_IMAGES[i].to_string(), &0);
+        }
         Self {
             tokens: NonFungibleToken::new(
                 StorageKey::NonFungibleToken,
@@ -85,6 +97,8 @@ impl Contract {
             ),
             metadata: LazyOption::new(StorageKey::Metadata, Some(&metadata)),
             token_minted: 0,
+            current_index: 0,
+            token_minted_type: token_type,
         }
     }
 
@@ -101,10 +115,38 @@ impl Contract {
         &mut self,
         token_id: TokenId,
         receiver_id: ValidAccountId,
-        token_metadata: TokenMetadata,
     ) -> Token {
+        assert!(
+            env::attached_deposit() == MINT_PRICE,
+            "Attached deposit must be greater than MINT_PRICE"
+        );
+        assert!(
+            self.token_minted < MAX_NFT_MINT,
+            "Max token quantity is MAX_NFT_MINT"
+        );
         self.token_minted += 1;
-        self.tokens.mint(token_id, receiver_id, Some(token_metadata))
+        let url = NFT_IMAGES[self.current_index as usize];
+        let _metadata = TokenMetadata {
+            title: Some("Olympus Mons".into()),
+            description: Some("The tallest mountain in the charted solar system".into()),
+            media: Some(url.to_string()),
+            media_hash: None,
+            copies: Some(100u64),
+            issued_at: Some(env::block_timestamp().to_string()),
+            expires_at: None,
+            starts_at: None,
+            updated_at: None,
+            extra: None,
+            reference: None,
+            reference_hash: None,
+        };
+        if self.current_index == 4 {
+            self.current_index = 0
+        }
+        else{
+            self.current_index += 1;
+        }
+        self.tokens.mint(token_id, receiver_id, Some(_metadata))
     }
 
     #[payable]
@@ -114,8 +156,47 @@ impl Contract {
         receiver_id: ValidAccountId,
         token_metadata: TokenMetadata,
     ) -> Token {
+        assert_eq!(
+            env::signer_account_id(),
+            env::current_account_id(),
+            "Only the contract owner can call this method"
+        );
+        assert!(
+            self.token_minted < MAX_NFT_MINT,
+            "Max token quantity is MAX_NFT_MINT"
+        );
         self.token_minted += 1;
+        let url = NFT_IMAGES[self.current_index as usize];
+        let _metadata = TokenMetadata {
+            title: Some("Olympus Mons".into()),
+            description: Some("The tallest mountain in the charted solar system".into()),
+            media: Some(url.to_string()),
+            media_hash: None,
+            copies: Some(100u64),
+            issued_at: Some(env::block_timestamp().to_string()),
+            expires_at: None,
+            starts_at: None,
+            updated_at: None,
+            extra: None,
+            reference: None,
+            reference_hash: None,
+        };
+        if self.current_index == 4 {
+            self.current_index = 0
+        }
+        else{
+            self.current_index += 1;
+        }
+        self.current_index += 1;
         self.tokens.mint(token_id, receiver_id, Some(token_metadata))
+    }
+
+    pub fn get_minted_quantity(&self) -> u16 {
+        self.token_minted
+    }
+
+    pub fn get_type_quantity(&self, nft_type: String) -> Option<u16> {
+        self.token_minted_type.get(&nft_type)
     }
 }
 
