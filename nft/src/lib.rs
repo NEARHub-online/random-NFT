@@ -42,7 +42,7 @@ pub struct Contract {
 
 const DATA_IMAGE_SVG_NEAR_ICON: &str = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 288 288'%3E%3Cg id='l' data-name='l'%3E%3Cpath d='M187.58,79.81l-30.1,44.69a3.2,3.2,0,0,0,4.75,4.2L191.86,103a1.2,1.2,0,0,1,2,.91v80.46a1.2,1.2,0,0,1-2.12.77L102.18,77.93A15.35,15.35,0,0,0,90.47,72.5H87.34A15.34,15.34,0,0,0,72,87.84V201.16A15.34,15.34,0,0,0,87.34,216.5h0a15.35,15.35,0,0,0,13.08-7.31l30.1-44.69a3.2,3.2,0,0,0-4.75-4.2L96.14,186a1.2,1.2,0,0,1-2-.91V104.61a1.2,1.2,0,0,1,2.12-.77l89.55,107.23a15.35,15.35,0,0,0,11.71,5.43h3.13A15.34,15.34,0,0,0,216,201.16V87.84A15.34,15.34,0,0,0,200.66,72.5h0A15.35,15.35,0,0,0,187.58,79.81Z'/%3E%3C/g%3E%3C/svg%3E";
 const MAX_NFT_MINT: u16 = 500;
-// const MAX_NFT_MINT_USERS: u16 = 200;
+const MAX_NFT_MINT_USERS: u16 = 300;
 const NFT_IMAGES: [&str; 5] = [
         "https://cloudflare-ipfs.com/ipfs/bafybeiejustedpnpl2sl37dvmifszj6xazi6rc7hdulc744nqtkyii7tdi/WL%205%20HRMS%20copy.jpg", 
         "https://cloudflare-ipfs.com/ipfs/bafybeifz7txlqaghmd65xuf3pm6h2sqp2j7szerellxmyxpho74ao7yzcu/WL%204%20HRMS%20copy.jpg", 
@@ -128,6 +128,10 @@ impl Contract {
             self.token_minted < MAX_NFT_MINT,
             "Max token quantity is MAX_NFT_MINT"
         );
+        assert!(
+            self.token_minted_users < MAX_NFT_MINT_USERS,
+            "Max token on sale is MAX_NFT_MINT_USERS"
+        );
 
         let remaining_gas: Gas = env::prepaid_gas() - env::used_gas() - GAS_RESERVED_FOR_CURRENT_CALL;
         Promise::new(env::current_account_id()).function_call(
@@ -186,6 +190,9 @@ impl Contract {
         }
         self.current_index += 1;
         self.token_minted += 1;
+        if env::current_account_id() != env::signer_account_id() {
+            self.token_minted_users += 1;
+        }
         self.tokens.mint(self.token_minted.to_string(), receiver_id, Some(_metadata))
     }
 
@@ -193,7 +200,7 @@ impl Contract {
         self.token_minted
     }
 
-    pub fn get_type_quantity(&self) -> u16 {
+    pub fn get_user_minted_quantity(&self) -> u16 {
         self.token_minted_users
     }
 }
