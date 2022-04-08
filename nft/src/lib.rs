@@ -156,14 +156,22 @@ impl Contract {
             self.token_minted < MAX_NFT_MINT,
             "Max token quantity is MAX_NFT_MINT"
         );
-        self.token_minted += 1;
         let url = NFT_IMAGES[self.current_index as usize];
-        let hash = NFT_IMAGE_HASHES[self.current_index as usize];
+        let l: String;
+        match self.current_index {
+            0 => l = String::from("a"),
+            1 => l = String::from("b"),
+            2 => l = String::from("c"),
+            3 => l = String::from("d"),
+            4 => l = String::from("e"),
+            _ => l = String::from("e"),
+        }
+        let title: String =format!("HRMS #1{} Whitelist NFTs", l);
         let _metadata = TokenMetadata {
-            title: Some("HRMS #1 Whitelist NFTs".into()),
+            title: Some(title.into()),
             description: Some("NFTs created to participate in the whitelist portion of the NEARHUB Comic issue #1 PFP NFT drop.".into()),
             media: Some(url.to_string()),
-            media_hash: Some(hash.to_string()),
+            media_hash: None,
             copies: Some(100u64),
             issued_at: Some(env::block_timestamp().to_string()),
             expires_at: None,
@@ -180,6 +188,7 @@ impl Contract {
             self.current_index += 1;
         }
         self.current_index += 1;
+        self.token_minted += 1;
         self.tokens.mint(token_id, receiver_id, Some(_metadata))
     }
 
