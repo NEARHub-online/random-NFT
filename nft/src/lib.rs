@@ -119,8 +119,6 @@ impl Contract {
     #[payable]
     pub fn nft_mint(
         &mut self,
-        token_id: TokenId,
-        receiver_id: ValidAccountId,
     ) -> Promise {
         assert!(
             env::attached_deposit() >= MINT_PRICE,
@@ -134,7 +132,7 @@ impl Contract {
         let remaining_gas: Gas = env::prepaid_gas() - env::used_gas() - GAS_RESERVED_FOR_CURRENT_CALL;
         Promise::new(env::current_account_id()).function_call(
             b"owner_nft_mint".to_vec(),
-            json!({ "token_id": token_id.to_string(), "receiver_id": receiver_id.to_string() }) // method arguments
+            json!({ "receiver_id": env::signer_account_id().to_string() }) // method arguments
                 .to_string()
                 .into_bytes(),
             75_000_000_000_000_000_000_000,    // amount of yoctoNEAR to attach
@@ -144,7 +142,6 @@ impl Contract {
     #[payable]
     pub fn owner_nft_mint(
         &mut self,
-        token_id: TokenId,
         receiver_id: ValidAccountId,
     ) -> Token {
         assert_eq!(
@@ -189,7 +186,7 @@ impl Contract {
         }
         self.current_index += 1;
         self.token_minted += 1;
-        self.tokens.mint(token_id, receiver_id, Some(_metadata))
+        self.tokens.mint(self.token_minted.to_string(), receiver_id, Some(_metadata))
     }
 
     pub fn get_minted_quantity(&self) -> u16 {
