@@ -24,7 +24,7 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LazyOption};
 use near_sdk::json_types::ValidAccountId;
 use near_sdk::{
-    env, near_bindgen, AccountId, BorshStorageKey, PanicOnDefault, Promise, PromiseOrValue, PromiseResult
+    env, near_bindgen, AccountId, BorshStorageKey, PanicOnDefault, Promise, PromiseOrValue, Gas
 };
 use near_sdk::serde_json::json;
 
@@ -49,7 +49,16 @@ const NFT_IMAGES: [&str; 5] = [
         "https://cloudflare-ipfs.com/ipfs/bafybeigllxpu5lwak6hilfojc4dssi43pxajhf3lnichxvut6lwf3ekjsm/WL%203%20HRMS%20copy.jpg", 
         "https://cloudflare-ipfs.com/ipfs/bafybeigrw46fpw3wldc4jdwwpabuift4nk4egkdqdui5dqidfxdon3vgnq/WL%202%20HRMS%20copy.jpg", 
         "https://cloudflare-ipfs.com/ipfs/bafybeie6tdmf5whxd4sy4b7wtnzjafja4pgvlsah2jxknd6wxgtjzqngvy/WL%201%20HRMS%20copy.jpg"];
+const NFT_IMAGE_HASHES: [&str; 5] = [
+        "3d26f2df03dc554ce08215b208da8047230e350b58784ff94bcc9a24622625f5", 
+        "210d372c6d7f08f89478b84c4aabfd9f4991a29198240b06f4102d81dd5bf38d", 
+        "cdf42b036d29445986c65d2c271305fa9536738c71249cb53b1682896ee599d6", 
+        "87393da5cbdb077e68d4e15a14c423c70e6921cbf5c859792f0ad6a5c7d6b585", 
+        "5c9fddd986a2453a482cbd7e541107a023145b7538b6fe0b8c7cbe4fb79dbdfd"
+];
 const MINT_PRICE: u128 = 5_000_000_000_000_000_000_000_000;
+const GAS_RESERVED_FOR_CURRENT_CALL: Gas = 20_000_000_000_000;
+
 
 #[derive(BorshSerialize, BorshStorageKey)]
 enum StorageKey {
@@ -122,26 +131,14 @@ impl Contract {
             "Max token quantity is MAX_NFT_MINT"
         );
 
+        let remaining_gas: Gas = env::prepaid_gas() - env::used_gas() - GAS_RESERVED_FOR_CURRENT_CALL;
         Promise::new(env::current_account_id()).function_call(
             b"owner_nft_mint".to_vec(),
             json!({ "token_id": token_id.to_string(), "receiver_id": receiver_id.to_string() }) // method arguments
                 .to_string()
                 .into_bytes(),
-            0,                 // amount of yoctoNEAR to attach
-            5_000_000_000_000) // gas to attach)
-    }
-
-    fn is_promise_success() -> bool {
-        assert_eq!(
-            env::promise_results_count(),
-            1,
-            "Contract expected a result on the callback"
-        );
-    
-        match env::promise_result(0) {
-            PromiseResult::Successful(_) => true,
-            _ => false,
-        }
+            75_000_000_000_000_000_000_000,    // amount of yoctoNEAR to attach
+            remaining_gas)       // gas to attach)
     }
 
     #[payable]
@@ -161,11 +158,12 @@ impl Contract {
         );
         self.token_minted += 1;
         let url = NFT_IMAGES[self.current_index as usize];
+        let hash = NFT_IMAGE_HASHES[self.current_index as usize];
         let _metadata = TokenMetadata {
-            title: Some("Olympus Mons".into()),
-            description: Some("The tallest mountain in the charted solar system".into()),
+            title: Some("HRMS #1 Whitelist NFTs".into()),
+            description: Some("NFTs created to participate in the whitelist portion of the NEARHUB Comic issue #1 PFP NFT drop.".into()),
             media: Some(url.to_string()),
-            media_hash: None,
+            media_hash: Some(hash.to_string()),
             copies: Some(100u64),
             issued_at: Some(env::block_timestamp().to_string()),
             expires_at: None,
