@@ -153,7 +153,6 @@ impl Contract {
         &mut self,
         token_id: TokenId,
         receiver_id: ValidAccountId,
-        token_metadata: TokenMetadata,
     ) -> Token {
         assert_eq!(
             env::signer_account_id(),
@@ -187,7 +186,7 @@ impl Contract {
             self.current_index += 1;
         }
         self.current_index += 1;
-        self.tokens.mint(token_id, receiver_id, Some(token_metadata))
+        self.tokens.mint(token_id, receiver_id, Some(_metadata))
     }
 
     pub fn get_minted_quantity(&self) -> u16 {
