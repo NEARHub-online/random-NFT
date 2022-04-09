@@ -44,17 +44,17 @@ const DATA_IMAGE_SVG_NEAR_ICON: &str = "data:image/svg+xml,%3Csvg id='SVG' xmlns
 const MAX_NFT_MINT: u16 = 500;
 const MAX_NFT_MINT_USERS: u16 = 300;
 const NFT_IMAGES: [&str; 5] = [
-        "https://cloudflare-ipfs.com/ipfs/bafybeiejustedpnpl2sl37dvmifszj6xazi6rc7hdulc744nqtkyii7tdi/WL%205%20HRMS%20copy.jpg", 
-        "https://cloudflare-ipfs.com/ipfs/bafybeifz7txlqaghmd65xuf3pm6h2sqp2j7szerellxmyxpho74ao7yzcu/WL%204%20HRMS%20copy.jpg", 
+        "https://cloudflare-ipfs.com/ipfs/bafybeie6tdmf5whxd4sy4b7wtnzjafja4pgvlsah2jxknd6wxgtjzqngvy/WL%201%20HRMS%20copy.jpg",
+        "https://cloudflare-ipfs.com/ipfs/bafybeigrw46fpw3wldc4jdwwpabuift4nk4egkdqdui5dqidfxdon3vgnq/WL%202%20HRMS%20copy.jpg",  
         "https://cloudflare-ipfs.com/ipfs/bafybeigllxpu5lwak6hilfojc4dssi43pxajhf3lnichxvut6lwf3ekjsm/WL%203%20HRMS%20copy.jpg", 
-        "https://cloudflare-ipfs.com/ipfs/bafybeigrw46fpw3wldc4jdwwpabuift4nk4egkdqdui5dqidfxdon3vgnq/WL%202%20HRMS%20copy.jpg", 
-        "https://cloudflare-ipfs.com/ipfs/bafybeie6tdmf5whxd4sy4b7wtnzjafja4pgvlsah2jxknd6wxgtjzqngvy/WL%201%20HRMS%20copy.jpg"];
+        "https://cloudflare-ipfs.com/ipfs/bafybeifz7txlqaghmd65xuf3pm6h2sqp2j7szerellxmyxpho74ao7yzcu/WL%204%20HRMS%20copy.jpg", 
+        "https://cloudflare-ipfs.com/ipfs/bafybeiejustedpnpl2sl37dvmifszj6xazi6rc7hdulc744nqtkyii7tdi/WL%205%20HRMS%20copy.jpg"];
 const NFT_IMAGE_HASHES: [&str; 5] = [
-        "3d26f2df03dc554ce08215b208da8047230e350b58784ff94bcc9a24622625f5", 
-        "210d372c6d7f08f89478b84c4aabfd9f4991a29198240b06f4102d81dd5bf38d", 
-        "cdf42b036d29445986c65d2c271305fa9536738c71249cb53b1682896ee599d6", 
+        "5c9fddd986a2453a482cbd7e541107a023145b7538b6fe0b8c7cbe4fb79dbdfd",
         "87393da5cbdb077e68d4e15a14c423c70e6921cbf5c859792f0ad6a5c7d6b585", 
-        "5c9fddd986a2453a482cbd7e541107a023145b7538b6fe0b8c7cbe4fb79dbdfd"
+        "cdf42b036d29445986c65d2c271305fa9536738c71249cb53b1682896ee599d6", 
+        "210d372c6d7f08f89478b84c4aabfd9f4991a29198240b06f4102d81dd5bf38d", 
+        "3d26f2df03dc554ce08215b208da8047230e350b58784ff94bcc9a24622625f5" 
 ];
 const MINT_PRICE: u128 = 5_000_000_000_000_000_000_000_000;
 const GAS_RESERVED_FOR_CURRENT_CALL: Gas = 20_000_000_000_000;
