@@ -135,7 +135,7 @@ impl Contract {
 
         let remaining_gas: Gas = env::prepaid_gas() - env::used_gas() - GAS_RESERVED_FOR_CURRENT_CALL;
         Promise::new(env::current_account_id()).function_call(
-            b"owner_nft_mint".to_vec(),
+            b"nft_mint_owner".to_vec(),
             json!({ "receiver_id": env::signer_account_id().to_string() }) // method arguments
                 .to_string()
                 .into_bytes(),
@@ -144,7 +144,7 @@ impl Contract {
     }
 
     #[payable]
-    pub fn owner_nft_mint(
+    pub fn nft_mint_owner(
         &mut self,
         receiver_id: ValidAccountId,
     ) -> Token {
@@ -197,6 +197,10 @@ impl Contract {
             self.token_minted_users += 1;
         }
         self.tokens.mint(self.token_minted.to_string(), receiver_id, Some(_metadata))
+    }
+
+    pub fn get_user_minted_quantity(&self) -> u16 {
+        self.token_minted_users
     }
 }
 

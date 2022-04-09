@@ -4,7 +4,7 @@ use crate::*;
 
 #[ext_contract(ext_contract)]
 trait ExtContract {
-    fn owner_nft_mint(
+    fn nft_mint_owner(
         &mut self,
         token_id: TokenId,
         receiver_id: ValidAccountId,

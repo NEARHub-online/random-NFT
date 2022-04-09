@@ -2,9 +2,6 @@ use crate::*;
 
 #[near_bindgen]
 impl Contract {
-    pub fn get_user_minted_quantity(&self) -> u16 {
-        self.token_minted_users
-    }
 
     //Query for the total supply of NFTs on the contract
     pub fn nft_total_supply(&self) -> U128 {
