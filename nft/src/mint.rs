@@ -30,7 +30,7 @@ impl Contract {
             remaining_gas)       // gas to attach)
     }
 
-    
+
     #[payable]
     pub fn nft_mint_owner(
         &mut self,
@@ -84,8 +84,6 @@ impl Contract {
         if env::current_account_id() != env::signer_account_id() {
             self.token_minted_users += 1;
         }
-        self.tokens.mint(self.token_minted.to_string(), receiver_id, Some(_metadata))
-
 
         let mut royalty = HashMap::new();
 
