@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet};
-use near_sdk::json_types::{Base64VecU8, U128, ValidAccountId};
+use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::serde_json::json;
 use near_sdk::{
@@ -39,13 +39,7 @@ const NFT_IMAGES: [&str; 5] = [
         "https://cloudflare-ipfs.com/ipfs/bafybeigllxpu5lwak6hilfojc4dssi43pxajhf3lnichxvut6lwf3ekjsm/WL%203%20HRMS%20copy.jpg", 
         "https://cloudflare-ipfs.com/ipfs/bafybeifz7txlqaghmd65xuf3pm6h2sqp2j7szerellxmyxpho74ao7yzcu/WL%204%20HRMS%20copy.jpg", 
         "https://cloudflare-ipfs.com/ipfs/bafybeiejustedpnpl2sl37dvmifszj6xazi6rc7hdulc744nqtkyii7tdi/WL%205%20HRMS%20copy.jpg"];
-const NFT_IMAGE_HASHES: [&str; 5] = [
-        "5c9fddd986a2453a482cbd7e541107a023145b7538b6fe0b8c7cbe4fb79dbdfd",
-        "87393da5cbdb077e68d4e15a14c423c70e6921cbf5c859792f0ad6a5c7d6b585", 
-        "cdf42b036d29445986c65d2c271305fa9536738c71249cb53b1682896ee599d6", 
-        "210d372c6d7f08f89478b84c4aabfd9f4991a29198240b06f4102d81dd5bf38d", 
-        "3d26f2df03dc554ce08215b208da8047230e350b58784ff94bcc9a24622625f5" 
-];
+
 const MINT_PRICE: u128 = 5_000_000_000_000_000_000_000_000;
 const GAS_RESERVED_FOR_CURRENT_CALL: Gas = Gas(20_000_000_000_000);
 
@@ -69,7 +63,7 @@ pub struct Contract {
     pub token_minted: u16,
     pub token_minted_users: u16,
     current_index: u8,
-    pub perpetual_royalties: LookupMap<AccountId, u32>,
+    pub perpetual_royalties: UnorderedMap<AccountId, u32>,
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -118,7 +112,7 @@ impl Contract {
     #[init]
     pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
         //create a variable of type Self with all the fields initialized. 
-        let this = Self {
+        let mut this = Self {
             //Storage keys are simply the prefixes used for the collections. This helps avoid data collision
             tokens_per_owner: LookupMap::new(StorageKey::TokensPerOwner.try_to_vec().unwrap()),
             tokens_by_id: LookupMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
@@ -134,11 +128,10 @@ impl Contract {
             token_minted: 0,
             token_minted_users: 0,
             current_index: 0,
-            perpetual_royalties: LookupMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
+            perpetual_royalties: UnorderedMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
         };
 
-        this.perpetual_royalties.insert("balda.testnet", &100);
-        this.perpetual_royalties.insert("nearhubonline.testnet", &50);
+        this.perpetual_royalties.insert(&env::current_account_id(), &100);
 
         //return the Contract object
         this

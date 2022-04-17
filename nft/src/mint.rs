@@ -33,7 +33,7 @@ impl Contract {
     #[payable]
     pub fn nft_mint_owner(
         &mut self,
-        receiver_id: ValidAccountId,
+        receiver_id: AccountId,
     ) {
         assert_eq!(
             env::predecessor_account_id(),
@@ -90,7 +90,7 @@ impl Contract {
         assert!(self.perpetual_royalties.len() < 7, "Cannot add more than 6 perpetual royalty amounts");
 
         //iterate through the perpetual royalties and insert the account and amount in the royalty map
-        for (account, amount) in self.perpetual_royalties {
+        for (account, amount) in self.perpetual_royalties.to_vec() {
             royalty.insert(account, amount);
         }
 
