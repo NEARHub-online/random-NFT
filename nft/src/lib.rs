@@ -4,7 +4,7 @@ use near_sdk::collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet};
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{
-    env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue, Gas
+    env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue, Gas, ValidAccountId
 };
 
 use crate::internal::*;
@@ -65,6 +65,9 @@ pub struct Contract {
 
     //keeps track of the metadata for the contract
     pub metadata: LazyOption<NFTContractMetadata>,
+    pub token_minted: u16,
+    pub token_minted_users: u16,
+    current_index: u8,
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -125,6 +128,9 @@ impl Contract {
                 StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
                 Some(&metadata),
             ),
+            token_minted: 0,
+            token_minted_users: 0,
+            current_index: 0,
         };
 
         //return the Contract object
