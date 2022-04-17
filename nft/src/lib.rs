@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet};
-use near_sdk::json_types::{Base64VecU8, U128};
+use near_sdk::json_types::{Base64VecU8, U128, ValidAccountId};
 use near_sdk::serde::{Deserialize, Serialize};
+use near_sdk::serde_json::json;
 use near_sdk::{
-    env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue, Gas, ValidAccountId
+    env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue, Gas
 };
 
 use crate::internal::*;
@@ -46,7 +47,7 @@ const NFT_IMAGE_HASHES: [&str; 5] = [
         "3d26f2df03dc554ce08215b208da8047230e350b58784ff94bcc9a24622625f5" 
 ];
 const MINT_PRICE: u128 = 5_000_000_000_000_000_000_000_000;
-const GAS_RESERVED_FOR_CURRENT_CALL: Gas = 20_000_000_000_000;
+const GAS_RESERVED_FOR_CURRENT_CALL: Gas = Gas(20_000_000_000_000);
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
@@ -68,6 +69,7 @@ pub struct Contract {
     pub token_minted: u16,
     pub token_minted_users: u16,
     current_index: u8,
+    pub perpetual_royalties: LookupMap<AccountId, u32>,
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -81,6 +83,7 @@ pub enum StorageKey {
     TokensPerType,
     TokensPerTypeInner { token_type_hash: CryptoHash },
     TokenTypesLocked,
+    Royalties,
 }
 
 #[near_bindgen]
@@ -131,7 +134,11 @@ impl Contract {
             token_minted: 0,
             token_minted_users: 0,
             current_index: 0,
+            perpetual_royalties: LookupMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
         };
+
+        this.perpetual_royalties.insert("balda.testnet", &100);
+        this.perpetual_royalties.insert("nearhubonline.testnet", &50);
 
         //return the Contract object
         this

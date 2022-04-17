@@ -3,7 +3,6 @@ use crate::*;
 #[near_bindgen]
 impl Contract {
     #[payable]
-    #[payable]
     pub fn nft_mint(
         &mut self,
     ) -> Promise {
@@ -22,7 +21,7 @@ impl Contract {
 
         let remaining_gas: Gas = env::prepaid_gas() - env::used_gas() - GAS_RESERVED_FOR_CURRENT_CALL;
         Promise::new(env::current_account_id()).function_call(
-            b"nft_mint_owner".to_vec(),
+            "nft_mint_owner".to_string(),
             json!({ "receiver_id": env::signer_account_id().to_string() }) // method arguments
                 .to_string()
                 .into_bytes(),
@@ -35,7 +34,7 @@ impl Contract {
     pub fn nft_mint_owner(
         &mut self,
         receiver_id: ValidAccountId,
-    ) -> Token {
+    ) {
         assert_eq!(
             env::predecessor_account_id(),
             env::current_account_id(),
@@ -65,7 +64,7 @@ impl Contract {
             media: Some(url.to_string()),
             media_hash: None,
             copies: Some(100u64),
-            issued_at: Some(env::block_timestamp().to_string()),
+            issued_at: Some(env::block_timestamp()),
             expires_at: None,
             starts_at: None,
             updated_at: None,
@@ -87,15 +86,12 @@ impl Contract {
 
         let mut royalty = HashMap::new();
 
-        // if perpetual royalties were passed into the function: 
-        if let Some(perpetual_royalties) = perpetual_royalties {
-            //make sure that the length of the perpetual royalties is below 7 since we won't have enough GAS to pay out that many people
-            assert!(perpetual_royalties.len() < 7, "Cannot add more than 6 perpetual royalty amounts");
+        //make sure that the length of the perpetual royalties is below 7 since we won't have enough GAS to pay out that many people
+        assert!(self.perpetual_royalties.len() < 7, "Cannot add more than 6 perpetual royalty amounts");
 
-            //iterate through the perpetual royalties and insert the account and amount in the royalty map
-            for (account, amount) in perpetual_royalties {
-                royalty.insert(account, amount);
-            }
+        //iterate through the perpetual royalties and insert the account and amount in the royalty map
+        for (account, amount) in self.perpetual_royalties {
+            royalty.insert(account, amount);
         }
 
         //specify the token struct that contains the owner ID 
@@ -117,7 +113,7 @@ impl Contract {
         );
 
         //insert the token ID and metadata
-        self.token_metadata_by_id.insert(&self.token_minted.to_string(), &metadata);
+        self.token_metadata_by_id.insert(&self.token_minted.to_string(), &_metadata);
 
         //call the internal method for adding the token to the owner
         self.internal_add_token_to_owner(&token.owner_id, &self.token_minted.to_string());
