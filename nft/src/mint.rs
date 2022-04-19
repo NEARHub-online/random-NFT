@@ -1,5 +1,11 @@
 use crate::*;
 
+// One can provide a name, e.g. `ext` to use for generated methods.
+#[ext_contract(ext)]
+pub trait ExtCrossWhitelist {
+    fn on_get_whitelist(&self, #[callback_unwrap] quantity: U128) -> U128;
+}
+
 #[near_bindgen]
 impl Contract {
     #[payable]
@@ -44,26 +50,25 @@ impl Contract {
             self.token_minted < MAX_NFT_MINT,
             "Max token quantity is MAX_NFT_MINT"
         );
-        if self.current_index > 4 {
+        if self.current_index > 3 {
             self.current_index = 0
         }
-        let url = NFT_IMAGES[self.current_index as usize];
+        let url = format!("{}{}.jpg", NFT_IMAGES, self.current_index.to_string());
         let l: String;
         match self.current_index {
-            0 => l = String::from("a"),
-            1 => l = String::from("b"),
-            2 => l = String::from("c"),
-            3 => l = String::from("d"),
-            4 => l = String::from("e"),
-            _ => l = String::from("e"),
+            0 => l = String::from("Ralphie"),
+            1 => l = String::from("Mikey"),
+            2 => l = String::from("Donnie"),
+            3 => l = String::from("Leia"),
+            _ => l = String::from("Leia"),
         }
-        let title: String =format!("HRMS #1{} Whitelist NFTs", l);
+        let title: String =format!("OMMM - {}", l);
         let _metadata = TokenMetadata {
             title: Some(title.into()),
-            description: Some("NFTs created to participate in the whitelist portion of the NEARHUB Comic issue #1 PFP NFT drop.".into()),
+            description: Some("Four Teenage Mutant Meta Potheads NFTS created and designed for the OMMM ( Our Marijuana Metaverse Mansion) 420 event in XoB. They are lean, they are green, and they are smoking machines; Collect all four!".into()),
             media: Some(url.to_string()),
             media_hash: None,
-            copies: Some(100u64),
+            copies: Some(420u64),
             issued_at: Some(env::block_timestamp()),
             expires_at: None,
             starts_at: None,
@@ -137,5 +142,60 @@ impl Contract {
 
         // Log the serialized json.
         env::log_str(&nft_mint_log.to_string());
+
+        // Transfert amout to receiver
+        Promise::new(self.receiver_id.clone().into()).transfer(MINT_PRICE);
     }
+
+    #[payable]
+    pub fn get_free_token(
+        &mut self,
+    ) -> Promise {
+        assert!(
+            env::attached_deposit() == 0,
+            "Attached deposit must be 0 for a free NFT"
+        );
+        assert!(
+            self.token_minted < MAX_NFT_MINT,
+            "Max token quantity is MAX_NFT_MINT"
+        );
+        assert!(
+            self.token_minted_users < MAX_NFT_MINT_USERS,
+            "Max token on sale is MAX_NFT_MINT_USERS"
+        );
+        assert!(
+            self.nft_supply_for_owner(env::current_account_id()) == U128(2),
+            "You should have exactly 2 NFT to get a free one" 
+        );
+
+        // Get external contract whitelist
+        // let amount: PromiseOrValue<U128> = Promise::new(env::current_account_id()).function_call(
+        //     "nft_supply_for_owner".to_string(),
+        //     json!({ "receiver_id": env::signer_account_id().to_string() }) // method arguments
+        //         .to_string()
+        //         .into_bytes(),
+        //     0,    // amount of yoctoNEAR to attach
+        //     Gas(0)).then(ext::on_get_whitelist(env::current_account_id(), 0, GAS_RESERVED_FOR_CURRENT_CALL)).into();
+
+        // assert!(
+        //     amount.into() != U128(0),
+        //     "You are not in the whitelist"
+        // );
+
+        let remaining_gas: Gas = env::prepaid_gas() - env::used_gas() - GAS_RESERVED_FOR_CURRENT_CALL;
+        Promise::new(env::current_account_id()).function_call(
+            "nft_mint_owner".to_string(),
+            json!({ "receiver_id": env::signer_account_id().to_string() }) // method arguments
+                .to_string()
+                .into_bytes(),
+            0,    // amount of yoctoNEAR to attach
+            remaining_gas)       // gas to attach)
+        
+    }
+
+    #[private]
+    pub fn on_get_whitelist(&self, #[callback_unwrap] quantity: U128) -> U128 {
+        quantity
+    }
+
 }
