@@ -10,6 +10,6 @@ near call random-nft-2.nearhubonline.testnet nft_mint '{}' --account-id  balda.t
 
 To show it on paras
 near call paras-marketplace-v2.testnet storage_deposit '{"accountId":"balda.testnet"}' --accountId balda.testnet --depositYocto 8590000000000000000000
-near call random-nft-2.nearhubonline.testnet nft_approve '{"token_id":"1","account_id":"paras-marketplace-v1.testnet","msg":"{\"market_type\":\"sale\",\"price\":\"1000000000000000000000000\",\"ft_token_id\":\"near\"}"}' --accountId balda.testnet --depositYocto 400000000000000000000
+near call random-nft-4.nearhubonline.testnet nft_approve '{"token_id":"1","account_id":"paras-marketplace-v1.testnet","msg":"{\"market_type\":\"sale\",\"price\":\"1000000000000000000000000\",\"ft_token_id\":\"near\"}"}' --accountId balda.testnet --depositYocto 400000000000000000000
 
 near call --accountId random-nft-2.nearhubonline.testnet paras-token-v2.testnet nft_approve '{"token_id":"1","account_id":"paras-marketplace-v2.testnet","msg":"{\"market_type\":\"sale\",\"price\":\"1000000000000000000000000\",\"ft_token_id\":\"near\"}"}' --depositYocto 400000000000000000000
