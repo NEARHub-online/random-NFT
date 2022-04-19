@@ -132,7 +132,7 @@ impl Contract {
             ),
             token_minted: 0,
             token_minted_users: 0,
-            current_index: 0,
+            current_index: 1,
             perpetual_royalties: UnorderedMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
             receiver_id: receiver_id.clone().into(),
         };

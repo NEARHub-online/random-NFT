@@ -50,16 +50,16 @@ impl Contract {
             self.token_minted < MAX_NFT_MINT,
             "Max token quantity is MAX_NFT_MINT"
         );
-        if self.current_index > 3 {
-            self.current_index = 0
+        if self.current_index > 4 {
+            self.current_index = 1
         }
         let url = format!("{}{}.jpg", NFT_IMAGES, self.current_index.to_string());
         let l: String;
         match self.current_index {
-            0 => l = String::from("Ralphie"),
-            1 => l = String::from("Mikey"),
-            2 => l = String::from("Donnie"),
-            3 => l = String::from("Leia"),
+            1 => l = String::from("Ralphie"),
+            2 => l = String::from("Mikey"),
+            3 => l = String::from("Donnie"),
+            4 => l = String::from("Leia"),
             _ => l = String::from("Leia"),
         }
         let title: String =format!("OMMM - {}", l);
@@ -77,12 +77,6 @@ impl Contract {
             reference: None,
             reference_hash: None,
         };
-        if self.current_index == 4 {
-            self.current_index = 0
-        }
-        else{
-            self.current_index += 1;
-        }
         self.current_index += 1;
         self.token_minted += 1;
         if env::current_account_id() != env::signer_account_id() {
@@ -144,7 +138,7 @@ impl Contract {
         env::log_str(&nft_mint_log.to_string());
 
         // Transfert amout to receiver
-        Promise::new(self.receiver_id.clone().into()).transfer(MINT_PRICE);
+        Promise::new(self.receiver_id.clone().into()).transfer(MINT_PRICE - 10_000_000_000_000_000_000_000);
     }
 
     #[payable]
@@ -164,7 +158,7 @@ impl Contract {
             "Max token on sale is MAX_NFT_MINT_USERS"
         );
         assert!(
-            self.nft_supply_for_owner(env::current_account_id()) == U128(2),
+            self.nft_supply_for_owner(env::signer_account_id()) == U128(2),
             "You should have exactly 2 NFT to get a free one" 
         );
 
