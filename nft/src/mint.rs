@@ -62,13 +62,13 @@ impl Contract {
             4 => l = String::from("Leia"),
             _ => l = String::from("Leia"),
         }
-        let title: String =format!("OMMM - {}", l);
+        let title: String =format!("HRMS - {}", l);
         let _metadata = TokenMetadata {
             title: Some(title.into()),
             description: Some("Four Teenage Mutant Meta Potheads NFTS created and designed for the OMMM ( Our Marijuana Metaverse Mansion) 420 event in XoB. They are lean, they are green, and they are smoking machines; Collect all four!".into()),
             media: Some(url.to_string()),
             media_hash: None,
-            copies: Some(420u64),
+            copies: Some(1u64),
             issued_at: Some(env::block_timestamp()),
             expires_at: None,
             starts_at: None,
