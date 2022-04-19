@@ -50,22 +50,12 @@ impl Contract {
             self.token_minted < MAX_NFT_MINT,
             "Max token quantity is MAX_NFT_MINT"
         );
-        if self.current_index > 4 {
-            self.current_index = 1
-        }
-        let url = format!("{}{}.jpg", NFT_IMAGES, self.current_index.to_string());
+        let url = format!("{}{}.jpg", NFT_IMAGES, self.token_minted.to_string());
         let l: String;
-        match self.current_index {
-            1 => l = String::from("Ralphie"),
-            2 => l = String::from("Mikey"),
-            3 => l = String::from("Donnie"),
-            4 => l = String::from("Leia"),
-            _ => l = String::from("Leia"),
-        }
-        let title: String =format!("HRMS - {}", l);
+        let title: String =format!("NEARHUB Comics PFP HRMS #0 #{}", self.token_minted.to_string());
         let _metadata = TokenMetadata {
             title: Some(title.into()),
-            description: Some("Four Teenage Mutant Meta Potheads NFTS created and designed for the OMMM ( Our Marijuana Metaverse Mansion) 420 event in XoB. They are lean, they are green, and they are smoking machines; Collect all four!".into()),
+            description: Some("2100 PFP NFTs created in comic book cover style to help launch NEARHUB comics very first issue that’ll feature the origin story of HRMS and how he begins his adventure through the NEARverse. Each page of the comic will be created based on a monthly contest that anyone can participate in, in order to help build the story. Holders of this NFT will be able to participate in the monthly contest at a discounted price, earn future staking rewards, &amp; more. Visit comics.nearhub.club for more details.".into()),
             media: Some(url.to_string()),
             media_hash: None,
             copies: Some(1u64),
@@ -77,7 +67,6 @@ impl Contract {
             reference: None,
             reference_hash: None,
         };
-        self.current_index += 1;
         self.token_minted += 1;
         if env::current_account_id() != env::signer_account_id() {
             self.token_minted_users += 1;

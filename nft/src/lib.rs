@@ -57,7 +57,6 @@ pub struct Contract {
     pub metadata: LazyOption<NFTContractMetadata>,
     pub token_minted: u16,
     pub token_minted_users: u16,
-    current_index: u8,
     pub perpetual_royalties: UnorderedMap<AccountId, u32>,
     pub receiver_id: AccountId,
 }
@@ -132,7 +131,6 @@ impl Contract {
             ),
             token_minted: 0,
             token_minted_users: 0,
-            current_index: 1,
             perpetual_royalties: UnorderedMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
             receiver_id: receiver_id.clone().into(),
         };
