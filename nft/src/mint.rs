@@ -51,7 +51,6 @@ impl Contract {
             "Max token quantity is MAX_NFT_MINT"
         );
         let url = format!("{}{}.jpg", NFT_IMAGES, self.token_minted.to_string());
-        let l: String;
         let title: String =format!("NEARHUB Comics PFP HRMS #0 #{}", self.token_minted.to_string());
         let _metadata = TokenMetadata {
             title: Some(title.into()),
