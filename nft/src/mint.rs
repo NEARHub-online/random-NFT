@@ -10,13 +10,8 @@ pub trait ExtCrossWhitelist {
 impl Contract {
     #[payable]
     pub fn nft_mint(
-        &mut self,
-        receiver_id: AccountId,
+        &mut self
     ) -> Promise {
-        assert!(
-            env::is_valid_account_id(receiver_id.as_bytes()),
-            "The receiver account ID is invalid"
-        );
         assert!(
             env::attached_deposit() >= MINT_PRICE,
             "Attached deposit must be greater than MINT_PRICE"
@@ -33,7 +28,7 @@ impl Contract {
         let remaining_gas: Gas = env::prepaid_gas() - env::used_gas() - GAS_RESERVED_FOR_CURRENT_CALL;
         Promise::new(env::current_account_id()).function_call(
             "nft_mint_owner".to_string(),
-            json!({ "receiver_id": receiver_id.to_string() }) // method arguments
+            json!({ "receiver_id": env::signer_account_id().to_string() }) // method arguments
                 .to_string()
                 .into_bytes(),
             75_000_000_000_000_000_000_000,    // amount of yoctoNEAR to attach
@@ -46,6 +41,10 @@ impl Contract {
         &mut self,
         receiver_id: AccountId,
     ) {
+        assert!(
+            env::is_valid_account_id(receiver_id.as_bytes()),
+            "The receiver account ID is invalid"
+        );
         assert_eq!(
             env::predecessor_account_id(),
             env::current_account_id(),
