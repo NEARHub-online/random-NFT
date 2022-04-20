@@ -14,6 +14,10 @@ impl Contract {
         receiver_id: AccountId,
     ) -> Promise {
         assert!(
+            env::is_valid_account_id(receiver_id.as_bytes()),
+            "The receiver account ID is invalid"
+        );
+        assert!(
             env::attached_deposit() >= MINT_PRICE,
             "Attached deposit must be greater than MINT_PRICE"
         );
@@ -42,10 +46,6 @@ impl Contract {
         &mut self,
         receiver_id: AccountId,
     ) {
-        assert!(
-            env::is_valid_account_id(receiver_id.as_bytes()),
-            "The receiver account ID is invalid"
-        );
         assert_eq!(
             env::predecessor_account_id(),
             env::current_account_id(),
