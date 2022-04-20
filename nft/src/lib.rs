@@ -37,6 +37,8 @@ const NFT_IMAGES: &str = "https://nearhubcomics.mypinata.cloud/ipfs/QmSmAaxGF73K
 const NFT_JSON: &str = "https://nearhubcomics.mypinata.cloud/ipfs/QmSmAaxGF73KdcbQ34As5U8eWuMm7eyPfd38ZftXgLDRLt/json/";
 
 const MINT_PRICE: u128 = 7_000_000_000_000_000_000_000_000;
+const NH_FEE: u128 = 2_800_000_000_000_000_000_000_000;
+const NC_FEE: u128 = 4_200_000_000_000_000_000_000_000;
 const GAS_RESERVED_FOR_CURRENT_CALL: Gas = Gas(20_000_000_000_000);
 
 #[near_bindgen]
@@ -60,6 +62,7 @@ pub struct Contract {
     pub token_minted_users: u16,
     pub perpetual_royalties: UnorderedMap<AccountId, u32>,
     pub receiver_id: AccountId,
+    pub receiver1_id: AccountId,
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -84,7 +87,7 @@ impl Contract {
         user doesn't have to manually type metadata.
     */
     #[init]
-    pub fn new_default_meta(owner_id: AccountId, receiver_id: AccountId) -> Self {
+    pub fn new_default_meta(owner_id: AccountId, receiver_id: AccountId, receiver1_id: AccountId) -> Self {
         assert!(
             env::is_valid_account_id(owner_id.as_bytes()),
             "The owner account ID is invalid"
@@ -106,6 +109,7 @@ impl Contract {
                 reference_hash: None,
             },
             receiver_id,
+            receiver1_id,
         )
     }
 
@@ -115,7 +119,7 @@ impl Contract {
         the owner_id. 
     */
     #[init]
-    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata, receiver_id: AccountId) -> Self {
+    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata, receiver_id: AccountId, receiver1_id: AccountId) -> Self {
         //create a variable of type Self with all the fields initialized. 
         let mut this = Self {
             //Storage keys are simply the prefixes used for the collections. This helps avoid data collision
@@ -134,10 +138,11 @@ impl Contract {
             token_minted_users: 0,
             perpetual_royalties: UnorderedMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
             receiver_id: receiver_id.clone().into(),
+            receiver1_id: receiver1_id.clone().into(),
         };
 
-        this.perpetual_royalties.insert(&"nearhub-dao.sputnik-dao.near".parse().unwrap(), &400);
-        this.perpetual_royalties.insert(&"nearhubcomics.sputnik-dao.near".parse().unwrap(), &600);
+        this.perpetual_royalties.insert(&this.receiver_id, &400);
+        this.perpetual_royalties.insert(&this.receiver1_id, &600);
 
         //return the Contract object
         this

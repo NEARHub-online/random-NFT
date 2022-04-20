@@ -11,6 +11,7 @@ impl Contract {
     #[payable]
     pub fn nft_mint(
         &mut self,
+        receiver_id: AccountId,
     ) -> Promise {
         assert!(
             env::attached_deposit() >= MINT_PRICE,
@@ -28,7 +29,7 @@ impl Contract {
         let remaining_gas: Gas = env::prepaid_gas() - env::used_gas() - GAS_RESERVED_FOR_CURRENT_CALL;
         Promise::new(env::current_account_id()).function_call(
             "nft_mint_owner".to_string(),
-            json!({ "receiver_id": env::signer_account_id().to_string() }) // method arguments
+            json!({ "receiver_id": receiver_id.to_string() }) // method arguments
                 .to_string()
                 .into_bytes(),
             75_000_000_000_000_000_000_000,    // amount of yoctoNEAR to attach
@@ -41,6 +42,10 @@ impl Contract {
         &mut self,
         receiver_id: AccountId,
     ) {
+        assert!(
+            env::is_valid_account_id(receiver_id.as_bytes()),
+            "The receiver account ID is invalid"
+        );
         assert_eq!(
             env::predecessor_account_id(),
             env::current_account_id(),
@@ -127,7 +132,8 @@ impl Contract {
         env::log_str(&nft_mint_log.to_string());
 
         // Transfert amout to receiver
-        Promise::new(self.receiver_id.clone().into()).transfer(MINT_PRICE - 10_000_000_000_000_000_000_000);
+        Promise::new(self.receiver_id.clone().into()).transfer(NH_FEE);
+        Promise::new(self.receiver1_id.clone().into()).transfer(NC_FEE);
     }
 
     #[payable]
