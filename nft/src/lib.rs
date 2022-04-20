@@ -34,6 +34,7 @@ const DATA_IMAGE_SVG_NEAR_ICON: &str = "data:image/svg+xml,%3Csvg id='SVG' xmlns
 const MAX_NFT_MINT: u16 = 2100;
 const MAX_NFT_MINT_USERS: u16 = 2100;
 const NFT_IMAGES: &str = "https://ipfs.io/ipfs/QmPa54TUMXo1j2JFsm8njkMh4133PQGrorfEUa7AWVDAFi/images/";
+const NFT_JSON: &str = "https://ipfs.io/ipfs/QmPa54TUMXo1j2JFsm8njkMh4133PQGrorfEUa7AWVDAFi/json/";
 
 const MINT_PRICE: u128 = 7_000_000_000_000_000_000_000_000;
 const GAS_RESERVED_FOR_CURRENT_CALL: Gas = Gas(20_000_000_000_000);

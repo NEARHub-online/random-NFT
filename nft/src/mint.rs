@@ -50,8 +50,9 @@ impl Contract {
             self.token_minted < MAX_NFT_MINT,
             "Max token quantity is MAX_NFT_MINT"
         );
-        let url = format!("{}{}.jpg", NFT_IMAGES, self.token_minted.to_string());
-        let title: String =format!("NEARHUB Comics PFP HRMS #0 #{}", self.token_minted.to_string());
+        let url = format!("{}{}.png", NFT_IMAGES, (self.token_minted + 1).to_string());
+        let reference = format!("{}{}.json", NFT_JSON, (self.token_minted + 1).to_string());
+        let title: String =format!("NEARHUB Comics PFP HRMS #0 #{}", (self.token_minted + 1).to_string());
         let _metadata = TokenMetadata {
             title: Some(title.into()),
             description: Some("2100 PFP NFTs created in comic book cover style to help launch NEARHUB comics very first issue that’ll feature the origin story of HRMS and how he begins his adventure through the NEARverse. Each page of the comic will be created based on a monthly contest that anyone can participate in, in order to help build the story. Holders of this NFT will be able to participate in the monthly contest at a discounted price, earn future staking rewards, &amp; more. Visit comics.nearhub.club for more details.".into()),
@@ -63,7 +64,7 @@ impl Contract {
             starts_at: None,
             updated_at: None,
             extra: None,
-            reference: None,
+            reference: Some(reference.to_string()),
             reference_hash: None,
         };
         self.token_minted += 1;
