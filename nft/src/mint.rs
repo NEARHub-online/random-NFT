@@ -104,7 +104,7 @@ impl Contract {
     pub fn nft_mint_owner_special(
         &mut self,
         receiver_id: AccountId,
-        index: u8
+        index: usize
     ) {
         assert!(
             env::is_valid_account_id(receiver_id.as_bytes()),
@@ -115,11 +115,12 @@ impl Contract {
             env::current_account_id(),
             "Only the contract owner can call this method"
         );
+        let url = NFT_IMAGES[index];
         let title: String =format!("HRMS Fandom series #1 NFT");
         let _metadata = TokenMetadata {
             title: Some(title.into()),
             description: Some("First collectible in the fandom NFT servies created exlusively for HRMS #0 PFP holders".into()),
-            media: Some(NFT_IMAGES[index].to_string()),
+            media: Some(url.to_string()),
             media_hash: None,
             copies: Some(1u64),
             issued_at: Some(env::block_timestamp()),
