@@ -5,8 +5,8 @@ Non-fungible Token (NFT)
 export NEAR_ENV=testnet
 near create-account random-nft-2.nearhubonline.testnet --masterAccount nearhubonline.testnet --initialBalance 5
 near deploy --account_id tip.tamago.testnet --wasm-file "out/non_fungible_token.wasm"
-near call random-nft-2.nearhubonline.testnet new_default_meta '{"owner_id": "random-nft-2.nearhubonline.testnet"}' --account-id random-nft-2.nearhubonline.testnet
-near call random-nft-2.nearhubonline.testnet nft_mint '{}' --account-id  balda.testnet --deposit 5 --gas=75000000000000
+near call famdom1.nearhubonline.testnet new_default_meta '{"owner_id": "famdom1.nearhubonline.testnet", "receiver_id": "balda.testnet", "receiver1_id": "nearhubonline.testnet"}' --accountId famdom1.nearhubonline.testnet
+near call famdom1.nearhubonline.testnet nft_mint '{"receiver_id": "balda.testnet"}' --account-id  famdom1.nearhubonline.testnet --gas=75000000000000
 ```
 
 ## To show it on paras

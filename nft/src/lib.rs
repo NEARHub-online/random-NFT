@@ -39,9 +39,6 @@ const NFT_IMAGES: [&str; 5] = [
     "https://nftstorage.link/ipfs/bafybeiatbzecyzcomhwgzqdzn3ctft453n46zvlnydsuu25xhzlzhh6ziu", 
     "https://nftstorage.link/ipfs/bafybeibq6jch2wz7sop5mxsbyeuaylip4pbkuhdjkh4jmqtx7neybkgyye"];
 
-const NH_FEE: u128 = 2_800_000_000_000_000_000_000_000;
-const NC_FEE: u128 = 4_200_000_000_000_000_000_000_000;
-
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Contract {
