@@ -181,10 +181,6 @@ impl Contract {
 
         // Log the serialized json.
         env::log_str(&nft_mint_log.to_string());
-
-        // Transfert amout to receiver
-        Promise::new(self.receiver_id.clone().into()).transfer(NH_FEE);
-        Promise::new(self.receiver1_id.clone().into()).transfer(NC_FEE);
     }
   
     
