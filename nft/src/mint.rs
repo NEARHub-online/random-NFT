@@ -127,6 +127,7 @@ impl Contract {
             reference: None,
             reference_hash: None,
         };
+        self.token_minted += 1;
 
         let mut royalty = HashMap::new();
 
@@ -181,6 +182,18 @@ impl Contract {
 
         // Log the serialized json.
         env::log_str(&nft_mint_log.to_string());
+    }
+
+    #[payable]
+    pub fn increase_counter(
+        &mut self,
+    ) {
+        assert_eq!(
+            env::predecessor_account_id(),
+            env::current_account_id(),
+            "Only the contract owner can call this method"
+        );
+        self.token_minted += 1;
     }
   
     
