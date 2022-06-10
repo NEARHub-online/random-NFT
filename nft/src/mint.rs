@@ -113,7 +113,7 @@ impl Contract {
 
         let _metadata = TokenMetadata {
             title: Some(NFT_TITLE.into()),
-            description: Some(NFT_DESCRIPTION.into()),
+            description: Some(NFT_DESCRIPTION_FREE.into()),
             media: Some(NFT_IMAGES_FREE.into()),
             media_hash: None,
             copies: Some(500u64),

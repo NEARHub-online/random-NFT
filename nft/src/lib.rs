@@ -34,8 +34,9 @@ const MAX_NFT_MINT_USER: u16 = 500;
 const MAX_NFT_MINT_FREE: u16 = 500;
 const NFT_IMAGES: &str = "https://cloudflare-ipfs.com/ipfs/bafkreib24gasejd7twhae4c56bbkupnrz324fjeyj3pq6sxmkjwhukqmx4/";
 const NFT_IMAGES_FREE: &str = "https://cloudflare-ipfs.com/ipfs/bafkreiglb4uzibdnyxds2du3zfbn354cuafjizeyut7vklyvugousy7t2u/";
-const NFT_TITLE: &str = "";
-const NFT_DESCRIPTION: &str = "";
+const NFT_TITLE: &str = "IFeel Sports and NEAR Hub presents:";
+const NFT_DESCRIPTION: &str = "VIP LIVE STREAM VR/ 360 | Saturday June 11 2022 🥊 PRO KICKBOXING CANADA VS FRANCE";
+const NFT_DESCRIPTION_FREE: &str = "LIVE STREAM VR/ 360 | Saturday June 11 2022 🥊 PRO KICKBOXING CANADA VS FRANCE, Guest Pass";
 
 const MINT_PRICE: u128 = 300_000_000_000_000_000_000_000;
 const MINT_PRICE_FREE: u128 = 200_000_000_000_000_000_000;
@@ -86,7 +87,7 @@ impl Contract {
         user doesn't have to manually type metadata.
     */
     #[init]
-    pub fn new_default_meta(owner_id: AccountId, receiver_id: AccountId) -> Self {
+    pub fn new_default_meta(owner_id: AccountId, receiver_id: AccountId, receiver1_id: AccountId, receiver2_id: AccountId) -> Self {
         assert!(
             env::is_valid_account_id(owner_id.as_bytes()),
             "The owner account ID is invalid"
@@ -100,14 +101,16 @@ impl Contract {
             owner_id,
             NFTContractMetadata {
                 spec: "nft-1.0.0".to_string(),
-                name: "Near Hub - OMMM NFT Comics".to_string(),
-                symbol: "OMMM".to_string(),
+                name: "IFeel Sports and NEAR Hub 0001".to_string(),
+                symbol: "IFS".to_string(),
                 icon: Some(DATA_IMAGE_SVG_NEAR_ICON.to_string()),
                 base_uri: None,
                 reference: None,
                 reference_hash: None,
             },
             receiver_id,
+            receiver1_id,
+            receiver2_id,
         )
     }
 
@@ -117,7 +120,7 @@ impl Contract {
         the owner_id. 
     */
     #[init]
-    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata, receiver_id: AccountId) -> Self {
+    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata, receiver_id: AccountId, receiver1_id: AccountId, receiver2_id: AccountId) -> Self {
         //create a variable of type Self with all the fields initialized. 
         let mut this = Self {
             //Storage keys are simply the prefixes used for the collections. This helps avoid data collision
@@ -139,7 +142,8 @@ impl Contract {
             receiver_id: receiver_id.clone().into(),
         };
 
-        this.perpetual_royalties.insert(&env::current_account_id(), &2000);
+        this.perpetual_royalties.insert(&receiver1_id, &2500);
+        this.perpetual_royalties.insert(&receiver2_id, &2500);
 
         //return the Contract object
         this
