@@ -116,7 +116,7 @@ impl Contract {
             description: Some(NFT_DESCRIPTION_FREE.into()),
             media: Some(NFT_IMAGES_FREE.into()),
             media_hash: None,
-            copies: Some(500u64),
+            copies: Some(200u64),
             issued_at: Some(env::block_timestamp()),
             expires_at: None,
             starts_at: None,
