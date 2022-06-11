@@ -35,6 +35,7 @@ const MAX_NFT_MINT_FREE: u16 = 200;
 const NFT_IMAGES: &str = "https://cloudflare-ipfs.com/ipfs/bafkreib24gasejd7twhae4c56bbkupnrz324fjeyj3pq6sxmkjwhukqmx4/";
 const NFT_IMAGES_FREE: &str = "https://cloudflare-ipfs.com/ipfs/bafkreiglb4uzibdnyxds2du3zfbn354cuafjizeyut7vklyvugousy7t2u/";
 const NFT_TITLE: &str = "IFeel Sports and NEAR Hub presents:";
+const NFT_TITLE_FREE: &str = "Guest pass - IFeel Sports and NEAR Hub presents:";
 const NFT_DESCRIPTION: &str = "VIP LIVE STREAM VR/ 360 | Saturday June 11 2022 🥊 PRO KICKBOXING CANADA VS FRANCE";
 const NFT_DESCRIPTION_FREE: &str = "LIVE STREAM VR/ 360 | Saturday June 11 2022 🥊 PRO KICKBOXING CANADA VS FRANCE, Guest Pass";
 

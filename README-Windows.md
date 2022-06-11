@@ -11,8 +11,8 @@ near call mmanice.nft.nearhubonline.testnet nft_mint '{}' --account-id  balda.te
 
 ## Mainnet
 near create-account mmanice.nft.nearhubonline.near --masterAccount nft.nearhubonline.near --initialBalance 4
-near deploy --account_id mmanice.nft.nearhubonline.near --wasm-file "out/non_fungible_token (50).wasm"
-near call mmanice.nft.nearhubonline.near new_default_meta '{"owner_id": "mmanice.nft.nearhubonline.near", "receiver_id": "nearhub-dao.sputnik-dao.near", "receiver1_id": "ifeelvirtuel.near", "receiver2_id": "nearhub-dao.sputnik-dao.near"}' --account-id mmanice.nft.nearhubonline.near
+near deploy --account_id mmanice.nearhubonline.near --wasm-file "out/non_fungible_token (51).wasm"
+near call mmanice.nearhubonline.near new_default_meta '{"owner_id": "mmanice.nearhubonline.near", "receiver_id": "nearhub-dao.sputnik-dao.near", "receiver1_id": "ifeelvirtuel.near", "receiver2_id": "nearhub-dao.sputnik-dao.near"}' --account-id mmanice.nearhubonline.near
 
 
 To show it on paras
