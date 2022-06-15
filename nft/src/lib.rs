@@ -57,7 +57,6 @@ pub struct Contract {
     pub token_minted: u16,
     pub token_minted_users: u16,
     pub perpetual_royalties: UnorderedMap<AccountId, u32>,
-    pub receiver_id: AccountId,
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -82,14 +81,10 @@ impl Contract {
         user doesn't have to manually type metadata.
     */
     #[init]
-    pub fn new_default_meta(owner_id: AccountId, receiver_id: AccountId) -> Self {
+    pub fn new_default_meta(owner_id: AccountId) -> Self {
         assert!(
             env::is_valid_account_id(owner_id.as_bytes()),
             "The owner account ID is invalid"
-        );
-        assert!(
-            env::is_valid_account_id(receiver_id.as_bytes()),
-            "The receiver account ID is invalid"
         );
         //calls the other function "new: with some default metadata and the owner_id passed in 
         Self::new(
@@ -102,8 +97,7 @@ impl Contract {
                 base_uri: None,
                 reference: None,
                 reference_hash: None,
-            },
-            receiver_id,
+            }
         )
     }
 
@@ -113,9 +107,9 @@ impl Contract {
         the owner_id. 
     */
     #[init]
-    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata, receiver_id: AccountId) -> Self {
+    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
         //create a variable of type Self with all the fields initialized. 
-        let mut this = Self {
+        Self {
             //Storage keys are simply the prefixes used for the collections. This helps avoid data collision
             tokens_per_owner: LookupMap::new(StorageKey::TokensPerOwner.try_to_vec().unwrap()),
             tokens_by_id: LookupMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
@@ -131,12 +125,6 @@ impl Contract {
             token_minted: 0,
             token_minted_users: 0,
             perpetual_royalties: UnorderedMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
-            receiver_id: receiver_id.clone().into(),
-        };
-
-        this.perpetual_royalties.insert(&env::current_account_id(), &2000);
-
-        //return the Contract object
-        this
+        }
     }
 }
