@@ -13,10 +13,6 @@ impl Contract {
         &mut self,
     ) -> Promise {
         assert!(
-            env::attached_deposit() >= MINT_PRICE,
-            "Attached deposit must be greater than MINT_PRICE"
-        );
-        assert!(
             self.token_minted < MAX_NFT_MINT,
             "Max token quantity is MAX_NFT_MINT"
         );
@@ -50,23 +46,12 @@ impl Contract {
             self.token_minted < MAX_NFT_MINT,
             "Max token quantity is MAX_NFT_MINT"
         );
-        if self.current_index > 4 {
-            self.current_index = 1
-        }
-        let url = format!("{}{}.jpg", NFT_IMAGES, self.current_index.to_string());
-        let l: String;
-        match self.current_index {
-            1 => l = String::from("Ralphie"),
-            2 => l = String::from("Mikey"),
-            3 => l = String::from("Donnie"),
-            4 => l = String::from("Leia"),
-            _ => l = String::from("Leia"),
-        }
+        
         let title: String =format!("OMMM - {}", l);
         let _metadata = TokenMetadata {
-            title: Some(title.into()),
-            description: Some("Four Teenage Mutant Meta Potheads NFTS created and designed for the OMMM ( Our Marijuana Metaverse Mansion) 420 event in XoB. They are lean, they are green, and they are smoking machines; Collect all four!".into()),
-            media: Some(url.to_string()),
+            title: Some("GemZ: NFT NYC 2022".into()),
+            description: Some("GemZ is a 2D and 3D generative project consisting of a limited edition 1,111 NFTs by Saint Kyriaki and TiEn. Ethics, morals, and values are at the heart of GemZ. In our lives, GemZ are the people we admire and respect. GemZ are our spiritual guides and mentors. GemZ are people who add a dash of whimsy and color to everyday life. GemZ is the stuff of our dreams and aspirations. GemZ is what we'd like to have in our back pocket to keep us safe and sacred, playful, and fun. A lot of brands, projects, and things that we see in the world are the work of GemZ. They don't get the notoriety and the percentages. Our project honors them and gives them acclamation. They've been swept under the rug, and no one seems to notice. Like a diamond tucked away in a pile of soil , GemZ are the undiscovered treasures. The core of the brand is provided by these artists that on the other hand, are often shunned and not given the attention they deserve. In many cases, artists feel that they are not given a fair share of the profits, are overlooked, and are not compensated in a way that is equitable. GemZ is all about honouring one's talents and breaking the stigma of getting the art from the talent and sweeping them under the rug. GemZ is a statement. It is our mission to make the GemZ more widely known, heard, and seen.".into()),
+            media: Some(NFT_IMAGES.to_string()),
             media_hash: None,
             copies: Some(420u64),
             issued_at: Some(env::block_timestamp()),
@@ -77,7 +62,6 @@ impl Contract {
             reference: None,
             reference_hash: None,
         };
-        self.current_index += 1;
         self.token_minted += 1;
         if env::current_account_id() != env::signer_account_id() {
             self.token_minted_users += 1;
@@ -136,60 +120,5 @@ impl Contract {
 
         // Log the serialized json.
         env::log_str(&nft_mint_log.to_string());
-
-        // Transfert amout to receiver
-        Promise::new(self.receiver_id.clone().into()).transfer(MINT_PRICE - 10_000_000_000_000_000_000_000);
     }
-
-    #[payable]
-    pub fn get_free_token(
-        &mut self,
-    ) -> Promise {
-        assert!(
-            env::attached_deposit() == 0,
-            "Attached deposit must be 0 for a free NFT"
-        );
-        assert!(
-            self.token_minted < MAX_NFT_MINT,
-            "Max token quantity is MAX_NFT_MINT"
-        );
-        assert!(
-            self.token_minted_users < MAX_NFT_MINT_USERS,
-            "Max token on sale is MAX_NFT_MINT_USERS"
-        );
-        assert!(
-            self.nft_supply_for_owner(env::signer_account_id()) == U128(2),
-            "You should have exactly 2 NFT to get a free one" 
-        );
-
-        // Get external contract whitelist
-        // let amount: PromiseOrValue<U128> = Promise::new(env::current_account_id()).function_call(
-        //     "nft_supply_for_owner".to_string(),
-        //     json!({ "receiver_id": env::signer_account_id().to_string() }) // method arguments
-        //         .to_string()
-        //         .into_bytes(),
-        //     0,    // amount of yoctoNEAR to attach
-        //     Gas(0)).then(ext::on_get_whitelist(env::current_account_id(), 0, GAS_RESERVED_FOR_CURRENT_CALL)).into();
-
-        // assert!(
-        //     amount.into() != U128(0),
-        //     "You are not in the whitelist"
-        // );
-
-        let remaining_gas: Gas = env::prepaid_gas() - env::used_gas() - GAS_RESERVED_FOR_CURRENT_CALL;
-        Promise::new(env::current_account_id()).function_call(
-            "nft_mint_owner".to_string(),
-            json!({ "receiver_id": env::signer_account_id().to_string() }) // method arguments
-                .to_string()
-                .into_bytes(),
-            0,    // amount of yoctoNEAR to attach
-            remaining_gas)       // gas to attach)
-        
-    }
-
-    #[private]
-    pub fn on_get_whitelist(&self, #[callback_unwrap] quantity: U128) -> U128 {
-        quantity
-    }
-
 }
