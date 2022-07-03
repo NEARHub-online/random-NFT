@@ -11,61 +11,24 @@ impl Contract {
     #[payable]
     pub fn nft_mint(
         &mut self,
-    ) -> Promise {
-        assert!(
-            env::attached_deposit() >= MINT_PRICE,
-            "Attached deposit must be greater than MINT_PRICE"
-        );
-        assert!(
-            self.token_minted < MAX_NFT_MINT,
-            "Max token quantity is MAX_NFT_MINT"
-        );
-        assert!(
-            self.token_minted_users < MAX_NFT_MINT_USERS,
-            "Max token on sale is MAX_NFT_MINT_USERS"
-        );
-
-        let remaining_gas: Gas = env::prepaid_gas() - env::used_gas() - GAS_RESERVED_FOR_CURRENT_CALL;
-        Promise::new(env::current_account_id()).function_call(
-            "nft_mint_owner".to_string(),
-            json!({ "receiver_id": env::signer_account_id().to_string() }) // method arguments
-                .to_string()
-                .into_bytes(),
-            75_000_000_000_000_000_000_000,    // amount of yoctoNEAR to attach
-            remaining_gas)       // gas to attach)
-    }
-
-
-    #[payable]
-    pub fn nft_mint_owner(
-        &mut self,
         receiver_id: AccountId,
-    ) {
-        assert_eq!(
-            env::predecessor_account_id(),
-            env::current_account_id(),
-            "Only the contract owner can call this method"
-        );
+        title: String,
+        url: String,
+        size: u8,
+        private: bool,
+        description: String
+    ){
+        let mint_price = self.get_nft_price(size, private);
         assert!(
-            self.token_minted < MAX_NFT_MINT,
-            "Max token quantity is MAX_NFT_MINT"
+            env::attached_deposit() >= mint_price,
+            "Attached deposit must be greater than or equal to MINT_PRICE"
         );
-        if self.current_index > 4 {
-            self.current_index = 1
-        }
-        let url = format!("{}{}.jpg", NFT_IMAGES, self.current_index.to_string());
-        let l: String;
-        match self.current_index {
-            1 => l = String::from("Ralphie"),
-            2 => l = String::from("Mikey"),
-            3 => l = String::from("Donnie"),
-            4 => l = String::from("Leia"),
-            _ => l = String::from("Leia"),
-        }
-        let title: String =format!("OMMM - {}", l);
+        
+        let extra = format!("{{'room_size': {}, 'private_room': {}}}", size.to_string(), (private).to_string());
+
         let _metadata = TokenMetadata {
             title: Some(title.into()),
-            description: Some("Four Teenage Mutant Meta Potheads NFTS created and designed for the OMMM ( Our Marijuana Metaverse Mansion) 420 event in XoB. They are lean, they are green, and they are smoking machines; Collect all four!".into()),
+            description: Some(description.into()),
             media: Some(url.to_string()),
             media_hash: None,
             copies: Some(420u64),
@@ -73,15 +36,11 @@ impl Contract {
             expires_at: None,
             starts_at: None,
             updated_at: None,
-            extra: None,
+            extra: Some(extra.into()),
             reference: None,
             reference_hash: None,
         };
-        self.current_index += 1;
         self.token_minted += 1;
-        if env::current_account_id() != env::signer_account_id() {
-            self.token_minted_users += 1;
-        }
 
         let mut royalty = HashMap::new();
 
@@ -111,6 +70,11 @@ impl Contract {
             "Token already exists"
         );
 
+        //if the room is private, add it to tickets map
+        if private {
+            self.room_tickets.insert(&self.token_minted.to_string(), &0);
+        } 
+
         //insert the token ID and metadata
         self.token_metadata_by_id.insert(&self.token_minted.to_string(), &_metadata);
 
@@ -138,58 +102,32 @@ impl Contract {
         env::log_str(&nft_mint_log.to_string());
 
         // Transfert amout to receiver
-        Promise::new(self.receiver_id.clone().into()).transfer(MINT_PRICE - 10_000_000_000_000_000_000_000);
-    }
-
-    #[payable]
-    pub fn get_free_token(
-        &mut self,
-    ) -> Promise {
-        assert!(
-            env::attached_deposit() == 0,
-            "Attached deposit must be 0 for a free NFT"
-        );
-        assert!(
-            self.token_minted < MAX_NFT_MINT,
-            "Max token quantity is MAX_NFT_MINT"
-        );
-        assert!(
-            self.token_minted_users < MAX_NFT_MINT_USERS,
-            "Max token on sale is MAX_NFT_MINT_USERS"
-        );
-        assert!(
-            self.nft_supply_for_owner(env::signer_account_id()) == U128(2),
-            "You should have exactly 2 NFT to get a free one" 
-        );
-
-        // Get external contract whitelist
-        // let amount: PromiseOrValue<U128> = Promise::new(env::current_account_id()).function_call(
-        //     "nft_supply_for_owner".to_string(),
-        //     json!({ "receiver_id": env::signer_account_id().to_string() }) // method arguments
-        //         .to_string()
-        //         .into_bytes(),
-        //     0,    // amount of yoctoNEAR to attach
-        //     Gas(0)).then(ext::on_get_whitelist(env::current_account_id(), 0, GAS_RESERVED_FOR_CURRENT_CALL)).into();
-
-        // assert!(
-        //     amount.into() != U128(0),
-        //     "You are not in the whitelist"
-        // );
-
-        let remaining_gas: Gas = env::prepaid_gas() - env::used_gas() - GAS_RESERVED_FOR_CURRENT_CALL;
-        Promise::new(env::current_account_id()).function_call(
-            "nft_mint_owner".to_string(),
-            json!({ "receiver_id": env::signer_account_id().to_string() }) // method arguments
-                .to_string()
-                .into_bytes(),
-            0,    // amount of yoctoNEAR to attach
-            remaining_gas)       // gas to attach)
-        
+        // Promise::new(self.receiver_id.clone().into()).transfer(MINT_PRICE - 10_000_000_000_000_000_000_000);
     }
 
     #[private]
-    pub fn on_get_whitelist(&self, #[callback_unwrap] quantity: U128) -> U128 {
-        quantity
+    fn get_nft_price(
+        &self,
+        size: u8,
+        private: bool
+    ) -> u128 {
+        let mut price: u128 = 7_000_000_000_000_000_000_000_000;
+        match size{
+            1=>price+=0,
+            2=>price+=0,
+            3=>price+=0,
+            5=>price+=2_000_000_000_000_000_000_000_000,
+            10=>price+=7_000_000_000_000_000_000_000_000,
+            15=>price+=10_000_000_000_000_000_000_000_000,
+            20=>price+=20_000_000_000_000_000_000_000_000,
+            30=>price+=50_000_000_000_000_000_000_000_000,
+            40=>price+=150_000_000_000_000_000_000_000_000,
+            50=>price+=300_000_000_000_000_000_000_000_000,
+            _=>price+=u128::from(size)*10_000_000_000_000_000_000_000_000,   
+        }
+        if private {
+            price+=20_000_000_000_000_000_000_000_000;
+        }
+        price
     }
-
 }
