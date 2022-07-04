@@ -52,7 +52,14 @@ pub struct Contract {
     pub token_minted: u16,
     pub perpetual_royalties: UnorderedMap<AccountId, u32>,
     pub receiver_id: AccountId,
-    pub room_tickets: UnorderedMap<TokenId, u16>,
+    pub room_tickets: UnorderedMap<TokenId, u8>,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct RoomAttributes {
+    pub room_size: u8,
+    pub private: bool,
 }
 
 /// Helper structure for keys of the persistent collections.

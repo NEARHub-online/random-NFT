@@ -73,4 +73,33 @@ impl Contract {
             //since we turned the keys into an iterator, we need to turn it back into a vector to return
             .collect()
     }
+
+    pub fn get_nft_owner(
+        &self,
+        token_id: TokenId,
+    ) -> AccountId {
+        let token = self.nft_token(token_id.clone()).unwrap();
+        token.owner_id
+    }
+
+    pub fn get_room_size(
+        &self,
+        token_id: TokenId,
+    ) -> Option<u8> {
+        let token = self.nft_token(token_id.clone()).unwrap();
+        let extra = token.metadata.extra.unwrap();
+        let v: RoomAttributes = serde_json::from_str(&extra).ok()?;
+        Some(v.room_size)
+    }
+    
+    pub fn is_room_private(
+        &self,
+        token_id: TokenId,
+    ) -> Option<bool> {
+        let token = self.nft_token(token_id.clone()).unwrap();
+        let extra = token.metadata.extra.unwrap();
+        let v: RoomAttributes = serde_json::from_str(&extra).ok()?;
+        Some(v.private)
+    }
+
 }
