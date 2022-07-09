@@ -11,48 +11,23 @@ impl Contract {
     #[payable]
     pub fn nft_mint(
         &mut self,
-    ) -> Promise {
-        assert!(
-            self.token_minted < MAX_NFT_MINT,
-            "Max token quantity is MAX_NFT_MINT"
-        );
-        assert!(
-            self.token_minted_users < MAX_NFT_MINT_USERS,
-            "Max token on sale is MAX_NFT_MINT_USERS"
-        );
-
-        let remaining_gas: Gas = env::prepaid_gas() - env::used_gas() - GAS_RESERVED_FOR_CURRENT_CALL;
-        Promise::new(env::current_account_id()).function_call(
-            "nft_mint_owner".to_string(),
-            json!({ "receiver_id": env::signer_account_id().to_string() }) // method arguments
-                .to_string()
-                .into_bytes(),
-            75_000_000_000_000_000_000_000,    // amount of yoctoNEAR to attach
-            remaining_gas)       // gas to attach)
-    }
-
-
-    #[payable]
-    pub fn nft_mint_owner(
-        &mut self,
         receiver_id: AccountId,
     ) {
-        assert_eq!(
-            env::predecessor_account_id(),
-            env::current_account_id(),
-            "Only the contract owner can call this method"
-        );
         assert!(
             self.token_minted < MAX_NFT_MINT,
             "Max token quantity is MAX_NFT_MINT"
+        );
+        assert!(
+            self.tokens_per_owner.contains_key(&receiver_id) == false,
+            "One token per account. receiver_id already hold a token."
         );
         
         let _metadata = TokenMetadata {
-            title: Some("GemZ: NFT NYC 2022".into()),
-            description: Some("GemZ is a 2D and 3D generative project consisting of a limited edition 1,111 NFTs by Saint Kyriaki and TiEn. Ethics, morals, and values are at the heart of GemZ. In our lives, GemZ are the people we admire and respect. GemZ are our spiritual guides and mentors. GemZ are people who add a dash of whimsy and color to everyday life. GemZ is the stuff of our dreams and aspirations. GemZ is what we'd like to have in our back pocket to keep us safe and sacred, playful, and fun. A lot of brands, projects, and things that we see in the world are the work of GemZ. They don't get the notoriety and the percentages. Our project honors them and gives them acclamation. They've been swept under the rug, and no one seems to notice. Like a diamond tucked away in a pile of soil , GemZ are the undiscovered treasures. The core of the brand is provided by these artists that on the other hand, are often shunned and not given the attention they deserve. In many cases, artists feel that they are not given a fair share of the profits, are overlooked, and are not compensated in a way that is equitable. GemZ is all about honouring one's talents and breaking the stigma of getting the art from the talent and sweeping them under the rug. GemZ is a statement. It is our mission to make the GemZ more widely known, heard, and seen.".into()),
+            title: Some("GemZ: NFT Expoverse LA 2022".into()),
+            description: Some("As a holder of the NEAR Hub, Tamago and NEARxPublish NFT, you will be able to enter to win special prizes at the NFT Expoverse LA 2022 convention. This convention is the perfect place to learn about all things NFT, and to meet other like-minded individuals who are passionate about this growing industry. You will also have the chance to view and purchase some of the latest and greatest NFTs from around the world. So don't miss out on this incredible opportunity – get your NEAR Hub, Tamago and NEARxPublish NFT today!".into()),
             media: Some(NFT_IMAGES.to_string()),
             media_hash: None,
-            copies: Some(420u64),
+            copies: Some(1111u64),
             issued_at: Some(env::block_timestamp()),
             expires_at: None,
             starts_at: None,
@@ -62,9 +37,6 @@ impl Contract {
             reference_hash: None,
         };
         self.token_minted += 1;
-        if env::current_account_id() != env::signer_account_id() {
-            self.token_minted_users += 1;
-        }
 
         let mut royalty = HashMap::new();
 
