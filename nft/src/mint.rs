@@ -23,7 +23,7 @@ impl Contract {
         );
         
         let _metadata = TokenMetadata {
-            title: Some("GemZ: NFT Expoverse LA 2022".into()),
+            title: Some("NFT Expoverse LA 2022".into()),
             description: Some("As a holder of the NEAR Hub, Tamago and NEARxPublish NFT, you will be able to enter to win special prizes at the NFT Expoverse LA 2022 convention. This convention is the perfect place to learn about all things NFT, and to meet other like-minded individuals who are passionate about this growing industry. You will also have the chance to view and purchase some of the latest and greatest NFTs from around the world. So don't miss out on this incredible opportunity – get your NEAR Hub, Tamago and NEARxPublish NFT today!".into()),
             media: Some(NFT_IMAGES.to_string()),
             media_hash: None,

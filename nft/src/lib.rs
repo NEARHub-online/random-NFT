@@ -88,7 +88,7 @@ impl Contract {
             owner_id,
             NFTContractMetadata {
                 spec: "nft-1.0.0".to_string(),
-                name: "GemZ: NFT expoverse".to_string(),
+                name: "Expoverse 2022 LA NFT".to_string(),
                 symbol: "GEMZ".to_string(),
                 icon: Some(DATA_IMAGE_SVG_NEAR_ICON.to_string()),
                 base_uri: None,
