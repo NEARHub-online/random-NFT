@@ -52,7 +52,6 @@ pub struct Contract {
     //keeps track of the metadata for the contract
     pub metadata: LazyOption<NFTContractMetadata>,
     pub token_minted: u16,
-    pub token_minted_users: u16,
     pub perpetual_royalties: UnorderedMap<AccountId, u32>,
 }
 
@@ -121,7 +120,6 @@ impl Contract {
                 Some(&metadata),
             ),
             token_minted: 0,
-            token_minted_users: 0,
             perpetual_royalties: UnorderedMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
         };
 

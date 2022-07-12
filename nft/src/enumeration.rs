@@ -8,8 +8,8 @@ impl Contract {
         U128(self.token_metadata_by_id.len() as u128)
     }
 
-    pub fn get_user_minted_quantity(&self) -> u16 {
-        self.token_minted_users
+    pub fn get_minted_quantity(&self) -> u16 {
+        self.token_minted
     }
 
     //Query for nft tokens on the contract regardless of the owner using pagination

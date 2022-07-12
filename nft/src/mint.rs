@@ -11,15 +11,17 @@ impl Contract {
     #[payable]
     pub fn nft_mint(
         &mut self,
-        receiver_id: AccountId,
     ) {
         assert!(
             self.token_minted < MAX_NFT_MINT,
             "Max token quantity is MAX_NFT_MINT"
         );
+
+        let receive_account_id = env::signer_account_id();
+        
         assert!(
-            self.tokens_per_owner.contains_key(&receiver_id) == false,
-            "One token per account. receiver_id already hold a token."
+            self.tokens_per_owner.contains_key(&receive_account_id) == false,
+            "One token per account. receive_account_id already hold a token."
         );
         
         let _metadata = TokenMetadata {
@@ -51,7 +53,7 @@ impl Contract {
         //specify the token struct that contains the owner ID 
         let token = Token {
             //set the owner ID equal to the receiver ID passed into the function
-            owner_id: receiver_id,
+            owner_id: receive_account_id,
             //we set the approved account IDs to the default value (an empty map)
             approved_account_ids: Default::default(),
             //the next approval ID is set to 0
