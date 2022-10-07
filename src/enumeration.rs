@@ -63,7 +63,7 @@ impl Contract {
         let start = u128::from(from_index.unwrap_or(U128(0)));
 
         //iterate through the keys vector
-        tokens.iter()
+        tokens.iter().rev()
             //skip to the index we specified in the start variable
             .skip(start as usize) 
             //take the first "limit" elements in the vector. If we didn't specify a limit, use 50
@@ -71,6 +71,18 @@ impl Contract {
             //we'll map the token IDs which are strings into Json Tokens
             .map(|token_id| self.nft_token(token_id.clone()).unwrap())
             //since we turned the keys into an iterator, we need to turn it back into a vector to return
-            .collect()
+            .collect();
+
+            
+        let mut tmp = Vec::new();
+        let keys = tokens.as_vector();
+        let start = u64::from(tokens.len() - from_index);
+        let end = max(start - limit, 0);
+        for i in start..end {
+            tmp.push(self.token_metadata_by_id.get(&keys.get(i).unwrap()).unwrap());
+        }
+        tmp
+
+        
     }
 }

@@ -5,7 +5,6 @@ impl Contract {
     #[payable]
     pub fn nft_mint(
         &mut self,
-        token_id: TokenId,
         metadata: TokenMetadata,
         receiver_id: AccountId,
         //we add an optional parameter for perpetual royalties
@@ -42,15 +41,15 @@ impl Contract {
 
         //insert the token ID and token struct and make sure that the token doesn't exist
         assert!(
-            self.tokens_by_id.insert(&token_id, &token).is_none(),
+            self.tokens_by_id.insert(&self.token_id.to_string(), &token).is_none(),
             "Token already exists"
         );
 
         //insert the token ID and metadata
-        self.token_metadata_by_id.insert(&token_id, &metadata);
+        self.token_metadata_by_id.insert(&self.token_id.to_string(), &metadata);
 
         //call the internal method for adding the token to the owner
-        self.internal_add_token_to_owner(&token.owner_id, &token_id);
+        self.internal_add_token_to_owner(&token.owner_id, &self.token_id.to_string());
 
         // Construct the mint log as per the events standard.
         let nft_mint_log: EventLog = EventLog {
@@ -63,11 +62,13 @@ impl Contract {
                 // Owner of the token.
                 owner_id: token.owner_id.to_string(),
                 // Vector of token IDs that were minted.
-                token_ids: vec![token_id.to_string()],
+                token_ids: vec![self.token_id.to_string().to_string()],
                 // An optional memo to include.
                 memo: None,
             }]),
         };
+
+        self.token_id+=1;
 
         // Log the serialized json.
         env::log_str(&nft_mint_log.to_string());

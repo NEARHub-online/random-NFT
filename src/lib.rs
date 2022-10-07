@@ -46,6 +46,9 @@ pub struct Contract {
 
     //keeps track of the metadata for the contract
     pub metadata: LazyOption<NFTContractMetadata>,
+
+    //token id
+    pub token_id: i32,
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -106,6 +109,7 @@ impl Contract {
                 StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
                 Some(&metadata),
             ),
+            token_id: 0,
         };
 
         //return the Contract object
