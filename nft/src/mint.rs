@@ -17,19 +17,37 @@ impl Contract {
             "Max token quantity is MAX_NFT_MINT"
         );
 
-        let receive_account_id = env::signer_account_id();
+        let mut mint_price: u128 = 0;
+
+        if self.token_minted < 200 {
+            mint_price = MINT_PRICE_1;
+        }
+
+        if self.token_minted >= 200 && self.token_minted < 700 {
+            mint_price = MINT_PRICE_2;
+        }
+
+        if self.token_minted >= 700 && self.token_minted < 1200 {
+            mint_price = MINT_PRICE_3;
+        }
+
+        if self.token_minted >= 1200 {
+            mint_price = MINT_PRICE_4;
+        } 
         
         assert!(
-            self.tokens_per_owner.contains_key(&receive_account_id) == false,
-            "One token per account. receive_account_id already hold a token."
+            env::attached_deposit() >= mint_price,
+            "Attached deposit must be greater than mint_price"
         );
+
+        let receive_account_id = env::signer_account_id();
         
         let _metadata = TokenMetadata {
-            title: Some("NFT Expoverse LA 2022".into()),
-            description: Some("As a holder of the NEAR Hub, Tamago and NEARxPublish NFT, you will be able to enter to win special prizes at the NFT Expoverse LA 2022 convention. This convention is the perfect place to learn about all things NFT, and to meet other like-minded individuals who are passionate about this growing industry. You will also have the chance to view and purchase some of the latest and greatest NFTs from around the world. So don't miss out on this incredible opportunity – get your NEAR Hub, Tamago and NEARxPublish NFT today!".into()),
+            title: Some(" Admit 1: Haunted house by NEAR Hub & NFT SF.".into()),
+            description: Some("This NFT ticket is good for one entry to the NFT SF x NEAR Hub virtual  Haunted House, Halloween 2022".into()),
             media: Some(NFT_IMAGES.to_string()),
             media_hash: None,
-            copies: Some(1111u64),
+            copies: Some(2000u64),
             issued_at: Some(env::block_timestamp()),
             expires_at: None,
             starts_at: None,
