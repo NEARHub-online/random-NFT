@@ -17,37 +17,19 @@ impl Contract {
             "Max token quantity is MAX_NFT_MINT"
         );
 
-        let mut mint_price: u128 = 0;
-
-        if self.token_minted < 200 {
-            mint_price = MINT_PRICE_1;
-        }
-
-        if self.token_minted >= 200 && self.token_minted < 700 {
-            mint_price = MINT_PRICE_2;
-        }
-
-        if self.token_minted >= 700 && self.token_minted < 1200 {
-            mint_price = MINT_PRICE_3;
-        }
-
-        if self.token_minted >= 1200 {
-            mint_price = MINT_PRICE_4;
-        } 
-        
         assert!(
-            env::attached_deposit() >= mint_price,
+            env::attached_deposit() >= MINT_PRICE,
             "Attached deposit must be greater than mint_price"
         );
 
         let receive_account_id = env::signer_account_id();
         
         let _metadata = TokenMetadata {
-            title: Some(" Admit 1: Haunted house by NEAR Hub & NFT SF.".into()),
-            description: Some("This NFT ticket is good for one entry to the NFT SF x NEAR Hub virtual  Haunted House, Halloween 2022".into()),
+            title: Some("Day of the Dead NEAR Hub Comics Exclusive".into()),
+            description: Some("This is a 1/10 art NFT Variation from the “Day of the Dead” Collection Created by Samtoshi_F_Baby exclusively for NEAR Hub Comics. 50% of the money collected from this collection will be donated to the Autism Community Network (ACN) in San Antonio, Texas. Their mission is to maximize the potential of children with autism by providing early diagnosis for those with limited access while educating and empowering the community to support them. For more information about the Autism Community Network please visit www.acn-sa.org.".into()),
             media: Some(NFT_IMAGES.to_string()),
             media_hash: None,
-            copies: Some(2000u64),
+            copies: Some(MAX_NFT_MINT.into()),
             issued_at: Some(env::block_timestamp()),
             expires_at: None,
             starts_at: None,
