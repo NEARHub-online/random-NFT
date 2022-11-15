@@ -23,8 +23,8 @@ impl Contract {
             mint_price = MINT_PRICE_1;
             
             assert!(
-                self.tokens_per_owner.contains_key(&receive_account_id) == false,
-                "One token per account. receive_account_id already hold a token."
+                self.tokens_per_owner.contains_key(&env::signer_account_id()) == false,
+                "One token per account. you already hold a token."
             );
         }
 
