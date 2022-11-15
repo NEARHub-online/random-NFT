@@ -19,19 +19,24 @@ impl Contract {
 
         let mut mint_price: u128 = 0;
 
-        if self.token_minted < 200 {
+        if self.token_minted < 100 {
             mint_price = MINT_PRICE_1;
+            
+            assert!(
+                self.tokens_per_owner.contains_key(&receive_account_id) == false,
+                "One token per account. receive_account_id already hold a token."
+            );
         }
 
-        if self.token_minted >= 200 && self.token_minted < 700 {
+        if self.token_minted >= 100 && self.token_minted < 300 {
             mint_price = MINT_PRICE_2;
         }
 
-        if self.token_minted >= 700 && self.token_minted < 1200 {
+        if self.token_minted >= 300 && self.token_minted < 500 {
             mint_price = MINT_PRICE_3;
         }
 
-        if self.token_minted >= 1200 {
+        if self.token_minted >= 500 {
             mint_price = MINT_PRICE_4;
         } 
         
@@ -43,8 +48,12 @@ impl Contract {
         let receive_account_id = env::signer_account_id();
         
         let _metadata = TokenMetadata {
-            title: Some(" Admit 1: Haunted house by NEAR Hub & NFT SF.".into()),
-            description: Some("This NFT ticket is good for one entry to the NFT SF x NEAR Hub virtual  Haunted House, Halloween 2022".into()),
+            title: Some("Animaze Animation Film festival 2022 Virtual Ticket".into()),
+            description: Some("Animaze is an international animation film festival that started in 2013. It's produced by the Montreal International Animation Film Festival and conference, and it showcases animations of all different kinds from all over the world. 
+
+            This year, it's coming to NEAR Hub for the first time ever! iFeel Virtuel will be streaming the live festival in 360 video, so you can experience it all from the comfort of your own virtual theater. This nft will grant you access to all the amazing animations and talks that'll be happening throughout the event.
+            
+            Experience this one-of-a-kind opportunity to explore the world of animation live Nov. 18 -20! You'll be able to see all sorts of different animations created just for this festival. It's sure to be a fascinating experience for everyone involved!".into()),
             media: Some(NFT_IMAGES.to_string()),
             media_hash: None,
             copies: Some(2000u64),
