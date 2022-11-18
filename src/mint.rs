@@ -10,6 +10,12 @@ impl Contract {
         //we add an optional parameter for perpetual royalties
         perpetual_royalties: Option<HashMap<AccountId, u32>>,
     ) {
+
+        assert!(
+            env::attached_deposit() >= MINT_PRICE,
+            "Attached deposit must be greater than mint_price"
+        );
+
         //measure the initial storage being used on the contract
         let initial_storage_usage = env::storage_usage();
 

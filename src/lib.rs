@@ -29,6 +29,8 @@ pub const NFT_METADATA_SPEC: &str = "nft-1.0.0";
 /// This is the name of the NFT standard we're using
 pub const NFT_STANDARD_NAME: &str = "nep171";
 
+const MINT_PRICE: u128 = 100_000_000_000_000_000_000_000;
+
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Contract {
@@ -49,6 +51,7 @@ pub struct Contract {
 
     //token id
     pub token_id: i32,
+    pub perpetual_royalties: UnorderedMap<AccountId, u32>,
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -62,6 +65,7 @@ pub enum StorageKey {
     TokensPerType,
     TokensPerTypeInner { token_type_hash: CryptoHash },
     TokenTypesLocked,
+    Royalties,
 }
 
 #[near_bindgen]
@@ -72,7 +76,7 @@ impl Contract {
         user doesn't have to manually type metadata.
     */
     #[init]
-    pub fn new_default_meta(owner_id: AccountId) -> Self {
+    pub fn new_default_meta(owner_id: AccountId, receiver_id: AccountId) -> Self {
         //calls the other function "new: with some default metadata and the owner_id passed in 
         Self::new(
             owner_id,
@@ -85,6 +89,7 @@ impl Contract {
                 reference: None,
                 reference_hash: None,
             },
+            receiver_id,
         )
     }
 
@@ -94,9 +99,9 @@ impl Contract {
         the owner_id. 
     */
     #[init]
-    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
+    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata, receiver_id: AccountId) -> Self {
         //create a variable of type Self with all the fields initialized. 
-        let this = Self {
+        let mut this = Self {
             //Storage keys are simply the prefixes used for the collections. This helps avoid data collision
             tokens_per_owner: LookupMap::new(StorageKey::TokensPerOwner.try_to_vec().unwrap()),
             tokens_by_id: LookupMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
@@ -110,7 +115,9 @@ impl Contract {
                 Some(&metadata),
             ),
             token_id: 0,
+            perpetual_royalties: UnorderedMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
         };
+        this.perpetual_royalties.insert(&receiver_id, &300);
 
         //return the Contract object
         this
