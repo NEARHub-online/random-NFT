@@ -8,6 +8,12 @@ impl Contract {
         U128(self.token_metadata_by_id.len() as u128)
     }
 
+    //Get token price
+    pub fn nft_token_price(&self) -> U128 {
+        //return the length of the token metadata by ID
+        U128(MINT_PRICE)
+    }
+
     //Query for nft tokens on the contract regardless of the owner using pagination
     pub fn nft_tokens(&self, from_index: Option<U128>, limit: Option<u64>, reverse: Option<bool>) -> Vec<JsonToken> {
         //where to start pagination - if we have a from_index, we'll use that - otherwise start from 0 index
