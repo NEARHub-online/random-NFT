@@ -55,12 +55,14 @@ impl Contract {
             "Max token quantity is MAX_NFT_MINT"
         );
         let title = format!("NEAR Avatar #{}", self.token_minted);
-        let extra = json!({ "asset": asset });
+        let asset_url = format!("{}{}", IPFS_GATEWAY, asset);
+        let image_url = format!("{}{}", IPFS_GATEWAY, image);
+        let extra = json!({ "asset": asset_url });
         let _metadata = TokenMetadata {
             title: Some(title.into()),
             description: Some("NEAR World Order limited edition NFTs created for NEARCon attendees. This NFT represents the beginning of The NEAR World Order. The NEAR World Order of blockchain is here; mass adoption is NEAR!
             *10 Lucky holders who get the Hollywood Logan NFT, can claim a Tshirt from the NEAR Hub booth at NEAR Con 2022. *".into()),
-            media: Some(image.to_string()),
+            media: Some(image_url.to_string()),
             media_hash: None,
             copies: Some(999u64),
             issued_at: Some(env::block_timestamp()),
@@ -97,15 +99,15 @@ impl Contract {
 
         //insert the token ID and token struct and make sure that the token doesn't exist
         assert!(
-            self.tokens_by_id.insert(&self.token_minted.to_string(), &token).is_none(),
+            self.tokens_by_id.insert(&asset.to_string(), &token).is_none(),
             "Token already exists"
         );
 
         //insert the token ID and metadata
-        self.token_metadata_by_id.insert(&self.token_minted.to_string(), &_metadata);
+        self.token_metadata_by_id.insert(&asset.to_string(), &_metadata);
 
         //call the internal method for adding the token to the owner
-        self.internal_add_token_to_owner(&token.owner_id, &self.token_minted.to_string());
+        self.internal_add_token_to_owner(&token.owner_id, &asset.to_string());
 
         // Construct the mint log as per the events standard.
         let nft_mint_log: EventLog = EventLog {
