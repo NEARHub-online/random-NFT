@@ -57,6 +57,7 @@ pub struct Contract {
     pub token_minted: u16,
     pub perpetual_royalties: UnorderedMap<AccountId, u32>,
     pub receiver_id: AccountId,
+    pub token_account_id: AccountId,
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -81,7 +82,7 @@ impl Contract {
         user doesn't have to manually type metadata.
     */
     #[init]
-    pub fn new_default_meta(owner_id: AccountId, receiver_id: AccountId) -> Self {
+    pub fn new_default_meta(owner_id: AccountId, receiver_id: AccountId, token_account_id: AccountId) -> Self {
         assert!(
             env::is_valid_account_id(owner_id.as_bytes()),
             "The owner account ID is invalid"
@@ -103,6 +104,7 @@ impl Contract {
                 reference_hash: None,
             },
             receiver_id,
+            token_account_id
         )
     }
 
@@ -112,7 +114,7 @@ impl Contract {
         the owner_id. 
     */
     #[init]
-    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata, receiver_id: AccountId) -> Self {
+    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata, receiver_id: AccountId, token_account_id: AccountId) -> Self {
         //create a variable of type Self with all the fields initialized. 
         let mut this = Self {
             //Storage keys are simply the prefixes used for the collections. This helps avoid data collision
@@ -130,6 +132,7 @@ impl Contract {
             token_minted: 0,
             perpetual_royalties: UnorderedMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
             receiver_id: receiver_id.clone().into(),
+            token_account_id: token_account_id.clone().into(),
         };
 
         this.perpetual_royalties.insert(&this.receiver_id, &200);

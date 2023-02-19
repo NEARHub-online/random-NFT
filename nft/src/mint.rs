@@ -14,6 +14,11 @@ impl Contract {
         image: String,
         asset: String,
     ) -> Promise {
+        assert_eq!(
+            env::predecessor_account_id(),
+            self.token_account_id,
+            "Token can only be minted using Estate tokens"
+        );
         assert!(
             env::attached_deposit() >= MINT_PRICE,
             "Attached deposit must be greater than MINT_PRICE"
@@ -60,8 +65,7 @@ impl Contract {
         let extra = json!({ "asset": asset_url });
         let _metadata = TokenMetadata {
             title: Some(title.into()),
-            description: Some("NEAR World Order limited edition NFTs created for NEARCon attendees. This NFT represents the beginning of The NEAR World Order. The NEAR World Order of blockchain is here; mass adoption is NEAR!
-            *10 Lucky holders who get the Hollywood Logan NFT, can claim a Tshirt from the NEAR Hub booth at NEAR Con 2022. *".into()),
+            description: Some("Nearhub Avatar. Mint your unique avatar and use it to connect to Nearhub metaverse.".into()),
             media: Some(image_url.to_string()),
             media_hash: None,
             copies: Some(999u64),
